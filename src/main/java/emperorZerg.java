@@ -22,7 +22,7 @@ class scoutChalkBoard{
     List<TilePosition> startPos;
 }
 
-public class ExampleBot extends DefaultBWListener {
+public class emperorZerg extends DefaultBWListener {
     BWClient bwClient;
     Game game;
     Player self;
@@ -285,6 +285,6 @@ public class ExampleBot extends DefaultBWListener {
     }
 
     public static void main(String[] args) {
-        new ExampleBot().run();
+        new emperorZerg().run();
     }
 }
