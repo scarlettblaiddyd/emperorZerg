@@ -1,1 +1,1 @@
-# starcraft-bot-zergtastic
+# starcraft-bot-emperorZerg
