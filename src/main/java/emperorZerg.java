@@ -178,8 +178,10 @@ public class emperorZerg extends DefaultBWListener {
     }
 
     public void onUnitMorph(Unit unit){
-        System.out.println("Unit morphing: " + unit.getType());
-        morphingUnits.add(unit.getBuildType());
+        if(unit.getPlayer() == self) {
+            System.out.println("Unit morphing: " + unit.getType());
+            morphingUnits.add(unit.getBuildType());
+        }
     }
 
     public void onUnitComplete(Unit unit) {
