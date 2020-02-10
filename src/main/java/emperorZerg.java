@@ -29,6 +29,7 @@ public class emperorZerg extends DefaultBWListener {
     List<Region> MapRegions;
     scoutChalkBoard sChalk = new scoutChalkBoard();
     LinkedList<UnitType> morphingUnits = new LinkedList<UnitType>();
+    LinkedList<UnitType> enemyUnits    = new LinkedList<UnitType>();
 
     void newScoutPath(){
         // Get a list of all the starting positions on the map
@@ -91,6 +92,7 @@ public class emperorZerg extends DefaultBWListener {
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen( 10, 230, "Resources: " + self.minerals() + " minerals, " + self.gas() + " gas");
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
+        game.drawTextScreen(10, 40,"Enemy units: " + enemyUnits);
 
         // Print all starting positions for reference
         List<TilePosition> startPos = game.getStartLocations();
@@ -145,13 +147,18 @@ public class emperorZerg extends DefaultBWListener {
         // Check if the scout has reached it's destination region
         if(sChalk.scout.getRegion() == MapRegions.get(sChalk.finalPath[sChalk.finalPath.length-1])){
             sChalk.context = "Arrived at destination";
-            if(sChalk.startPos.size() > 0){
+            if(enemyUnits.contains(UnitType.Terran_Command_Center) || enemyUnits.contains(UnitType.Zerg_Hatchery) || enemyUnits.contains(UnitType.Protoss_Nexus)){
+                sChalk.context = "Found enemy base";
+            }
+            else if(sChalk.startPos.size() > 0){
                 System.out.println("Scout arrived at start location. Looking for new destination");
                 newScoutPath();
                 sChalk.context = "Ready to start";
             }
         }
 
+
+        /****************** TRAINING UNITS ************************/
         // Train new overlords when supply is low
         if (self.supplyTotal() - self.supplyUsed() <= 2 && self.supplyTotal() <= 400 && !morphingUnits.contains(UnitType.Zerg_Overlord)){
             game.drawTextScreen(20 , 20, "Trying to make overlord");
@@ -177,10 +184,19 @@ public class emperorZerg extends DefaultBWListener {
         }
     }
 
+    /*****************When we start morphing a unit, add it to the list*******************************/
     public void onUnitMorph(Unit unit){
         if(unit.getPlayer() == self) {
             System.out.println("Unit morphing: " + unit.getType());
             morphingUnits.add(unit.getBuildType());
+        }
+    }
+
+    /*****************When we discover an enemy unit***********************************************/
+    public void onUnitDiscover(Unit unit){
+        if(unit.getPlayer() != self && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
+            System.out.println("Unit discovered: " + unit.getType());
+            enemyUnits.add(unit.getType());
         }
     }
 
