@@ -22,14 +22,23 @@ class scoutChalkBoard{
     List<TilePosition> startPos;
 }
 
+class enemyChalkBoard{
+    Player enemy;
+    Race race;
+    LinkedList<UnitType> army;
+    LinkedList<UnitType> buildings;
+    LinkedList<Position> basePos;
+}
+
 public class emperorZerg extends DefaultBWListener {
     BWClient bwClient;
     Game game;
     Player self;
     List<Region> MapRegions;
     scoutChalkBoard sChalk = new scoutChalkBoard();
+    enemyChalkBoard enemy  = new enemyChalkBoard();
     LinkedList<UnitType> morphingUnits = new LinkedList<UnitType>();
-    LinkedList<UnitType> enemyUnits    = new LinkedList<UnitType>();
+    //LinkedList<UnitType> enemyBuildings     = new LinkedList<UnitType>();
 
     void newScoutPath(){
         // Get a list of all the starting positions on the map
@@ -83,6 +92,10 @@ public class emperorZerg extends DefaultBWListener {
 
         sChalk.startPos = new LinkedList<TilePosition>(game.getStartLocations());
 
+        // Set known enemy attributes
+        enemy.enemy = game.enemies().get(0);
+        enemy.race  = enemy.enemy.getRace();
+        enemy.buildings = new LinkedList<UnitType>();
         //newScoutPath();
     }
 
@@ -92,7 +105,9 @@ public class emperorZerg extends DefaultBWListener {
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen( 10, 230, "Resources: " + self.minerals() + " minerals, " + self.gas() + " gas");
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
-        game.drawTextScreen(10, 40,"Enemy units: " + enemyUnits);
+        game.drawTextScreen(10, 40, "Enemy is playing as " + enemy.race);
+        game.drawTextScreen(10, 50,"Enemy units: " + enemy.buildings);
+
 
         // Print all starting positions for reference
         List<TilePosition> startPos = game.getStartLocations();
@@ -136,7 +151,7 @@ public class emperorZerg extends DefaultBWListener {
         if ( (sChalk.scout != null) && (sChalk.scout.isIdle()) && !sChalk.context.equals("Just Received Orders")){
             if(sChalk.currDest < sChalk.finalPath.length) {
                 sChalk.scout.move(MapRegions.get(sChalk.finalPath[sChalk.currDest]).getCenter());
-                System.out.println("Moving scout to: " + sChalk.finalPath[sChalk.currDest]);
+                //System.out.println("Moving scout to: " + sChalk.finalPath[sChalk.currDest]);
                 sChalk.currDest++;
                 sChalk.context = "Just Received Orders";
             }
@@ -147,7 +162,7 @@ public class emperorZerg extends DefaultBWListener {
         // Check if the scout has reached it's destination region
         if(sChalk.scout.getRegion() == MapRegions.get(sChalk.finalPath[sChalk.finalPath.length-1])){
             sChalk.context = "Arrived at destination";
-            if(enemyUnits.contains(UnitType.Terran_Command_Center) || enemyUnits.contains(UnitType.Zerg_Hatchery) || enemyUnits.contains(UnitType.Protoss_Nexus)){
+            if(enemy.buildings.contains(UnitType.Terran_Command_Center) || enemy.buildings.contains(UnitType.Zerg_Hatchery) || enemy.buildings.contains(UnitType.Protoss_Nexus)){
                 sChalk.context = "Found enemy base";
             }
             else if(sChalk.startPos.size() > 0){
@@ -171,14 +186,15 @@ public class emperorZerg extends DefaultBWListener {
             }
             morpher.morph(UnitType.Zerg_Overlord);
         }
-
-        // Train drones when we can
-        for ( Unit trainer : self.getUnits()) {
-            UnitType unitType = trainer.getType();
-            if (unitType.isBuilding() && !unitType.buildsWhat().isEmpty()) {
-                UnitType toTrain = unitType.buildsWhat().get(0);
-                if (trainer.canMorph()){
-                    trainer.morph(UnitType.Zerg_Drone);
+        else {
+            // Train drones when we can, but only if we have the supply for it
+            for (Unit trainer : self.getUnits()) {
+                UnitType unitType = trainer.getType();
+                if (unitType.isBuilding() && !unitType.buildsWhat().isEmpty()) {
+                    UnitType toTrain = unitType.buildsWhat().get(0);
+                    if (trainer.canMorph()) {
+                        trainer.morph(UnitType.Zerg_Drone);
+                    }
                 }
             }
         }
@@ -194,9 +210,12 @@ public class emperorZerg extends DefaultBWListener {
 
     /*****************When we discover an enemy unit***********************************************/
     public void onUnitDiscover(Unit unit){
-        if(unit.getPlayer() != self && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
-            System.out.println("Unit discovered: " + unit.getType());
-            enemyUnits.add(unit.getType());
+        if(unit.getType().isBuilding() && self.isEnemy(unit.getPlayer())) {
+            System.out.println("Discovered building of type: " + unit.getType());
+        }
+        if(self.isEnemy(unit.getPlayer()) && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
+            System.out.println("Enemy unit discovered: " + unit.getType());
+            enemy.buildings.add(unit.getType());
         }
     }
 
