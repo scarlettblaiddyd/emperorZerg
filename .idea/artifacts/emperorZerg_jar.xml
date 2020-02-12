@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="emperorZerg:jar">
+  <artifact type="jar" build-on-make="true" name="emperorZerg:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/emperorZerg_jar</output-path>
     <root id="archive" name="emperorZerg.jar">
       <element id="module-output" name="emperorZerg" />
