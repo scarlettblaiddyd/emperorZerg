@@ -38,25 +38,30 @@ public class Selector extends Routine {
     }
 
     public void act(Game game, Player self, enemyChalkBoard enemy){
-        currentRoutine.act(game, self, enemy);
-        // if is still running, then carry on
-        if (currentRoutine.isRunning()) {
-            return;
-        }
+        if (currentRoutine != null) {
+            currentRoutine.act(game, self, enemy);
+            // if is still running, then carry on
+            if (currentRoutine.isRunning()) {
+                return;
+            }
 
-        // check if the routine is successful and finish the sequence
-        if (currentRoutine.isSuccess()) {
-            succeed();
-            return;
-        }
+            // check if the routine is successful and finish the sequence
+            if (currentRoutine.isSuccess()) {
+                succeed();
+                return;
+            }
 
-        // We need to progress the sequence. If there are no more routines
-        // then the state is the last routine's state. (Success for OR was already handled)
-        if (routineQueue.peek() == null) {
-            this.state = currentRoutine.getState();
-        } else {
-            currentRoutine = routineQueue.poll();
-            currentRoutine.start();
+            // We need to progress the sequence. If there are no more routines
+            // then the state is the last routine's state. (Success for OR was already handled)
+            if (routineQueue.peek() == null) {
+                this.state = currentRoutine.getState();
+            } else {
+                currentRoutine = routineQueue.poll();
+                currentRoutine.start();
+            }
+        }
+        else {
+            start();
         }
 
     }
