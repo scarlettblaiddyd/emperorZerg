@@ -23,12 +23,13 @@ class scoutChalkBoard{
 }
 
 class enemyChalkBoard{
-    Player enemy;
+    Player self;
     Race race;
     LinkedList<UnitType> army;
     LinkedList<UnitType> buildings;
     LinkedList<Position> basePos;
 }
+
 
 public class emperorZerg extends DefaultBWListener {
     BWClient bwClient;
@@ -38,6 +39,7 @@ public class emperorZerg extends DefaultBWListener {
     scoutChalkBoard sChalk = new scoutChalkBoard();
     enemyChalkBoard enemy  = new enemyChalkBoard();
     LinkedList<UnitType> morphingUnits = new LinkedList<UnitType>();
+    Routine routine;
     //LinkedList<UnitType> enemyBuildings     = new LinkedList<UnitType>();
 
     void newScoutPath(){
@@ -93,14 +95,21 @@ public class emperorZerg extends DefaultBWListener {
         sChalk.startPos = new LinkedList<TilePosition>(game.getStartLocations());
 
         // Set known enemy attributes
-        enemy.enemy = game.enemies().get(0);
-        enemy.race  = enemy.enemy.getRace();
+        enemy.self = game.enemies().get(0);
+        enemy.race  = enemy.self.getRace();
         enemy.buildings = new LinkedList<UnitType>();
         //newScoutPath();
+
+        routine = new Repeat(new morphDrone(game, self, enemy));
     }
 
     @Override
     public void onFrame() {
+        if(routine.getState() == null){
+            routine.start();
+        }
+        routine.act(game, self, enemy);
+
         // General info for keeping track of AI behavior
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen( 10, 230, "Resources: " + self.minerals() + " minerals, " + self.gas() + " gas");
@@ -186,8 +195,9 @@ public class emperorZerg extends DefaultBWListener {
             }
             morpher.morph(UnitType.Zerg_Overlord);
         }
-        else {
+        /*else {
             // Train drones when we can, but only if we have the supply for it
+
             for (Unit trainer : self.getUnits()) {
                 UnitType unitType = trainer.getType();
                 if (unitType.isBuilding() && !unitType.buildsWhat().isEmpty()) {
@@ -197,7 +207,7 @@ public class emperorZerg extends DefaultBWListener {
                     }
                 }
             }
-        }
+        }*/
     }
 
     /*****************When we start morphing a unit, add it to the list*******************************/
