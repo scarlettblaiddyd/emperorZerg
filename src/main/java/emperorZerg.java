@@ -100,7 +100,7 @@ public class emperorZerg extends DefaultBWListener {
         enemy.buildings = new LinkedList<UnitType>();
         //newScoutPath();
 
-        routine = new Repeat(new morphDrone(game, self, enemy));
+        routine = new Repeat(new Selector());
     }
 
     @Override

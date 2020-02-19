@@ -5,12 +5,22 @@ import bwapi.Race;
 public class Repeat extends Routine {
 
     private final Routine routine;
+    private final Selector selector;
     private int times;
     private int originalTimes;
 
     public Repeat(Routine routine) {
         super();
         this.routine = routine;
+        this.selector = null;
+        this.times = -1; // infinite
+        this.originalTimes = times;
+    }
+
+    public Repeat(Selector selector) {
+        super();
+        this.selector = selector;
+        this.routine = selector;
         this.times = -1; // infinite
         this.originalTimes = times;
     }
@@ -21,10 +31,21 @@ public class Repeat extends Routine {
             throw new RuntimeException("Can't repeat negative times.");
         }
         this.routine = routine;
+        this.selector = null;
         this.times = times;
         this.originalTimes = times;
     }
 
+    public Repeat(Selector selector, int times) {
+        super();
+        if (times < 1) {
+            throw new RuntimeException("Can't repeat negative times.");
+        }
+        this.selector = selector;
+        this.routine = selector;
+        this.times = times;
+        this.originalTimes = times;
+    }
 
     public void reset() {
         start();
@@ -37,15 +58,11 @@ public class Repeat extends Routine {
                 fail();
                 return;
             }
-            if (enemy.race == Race.Protoss ){
-                //System.out.println("Facing protoss");
-            }
-            else if (enemy.race == Race.Terran){
-                routine.act(game, self, enemy);
-                //System.out.println("Facing Terran");
-            }
-            else if (enemy.race == Race.Zerg){
-                //System.out.println("Facing Zerg");
+            if (selector != null) {
+                selector.addRoutine(new ZergStrat(game, self, enemy));
+                selector.addRoutine(new ProtossStrat(game, self, enemy));
+                selector.addRoutine(new TerranStrat(game, self, enemy));
+                selector.act(game, self, enemy);
             }
         }
     }
