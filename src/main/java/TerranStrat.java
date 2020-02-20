@@ -43,7 +43,10 @@ public class TerranStrat extends Routine {
         sequencer.addRoutine(new BuildExtractor(game, self, enemy));
         sequencer.addRoutine(new MorphDrone(game, self, enemy));
         sequencer.addRoutine(new MorphOverlord(game, self, enemy));
+        sequencer.addRoutine(new MorphZergling(game, self, enemy, 3));
+        sequencer.addRoutine(new ScoutEnemy(game, self, enemy));
+        sequencer.addRoutine(new ZerglingRush(game, self, enemy));
         sequencer.act(game, self, enemy);
-        game.drawTextScreen(10, 70, sequencer.routineQueue.toString());
+        //game.drawTextScreen(10, 70, sequencer.routineQueue.toString());
     }
 }

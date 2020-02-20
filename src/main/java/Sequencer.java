@@ -39,7 +39,7 @@ public class Sequencer extends Routine {
 
     public void act(Game game, Player self, enemyChalkBoard enemy){
         if (currentRoutine != null) {
-            game.drawTextScreen(10, 80, "current routine: " + currentRoutine.toString());
+            //game.drawTextScreen(10, 80, "current routine: " + currentRoutine.toString());
             currentRoutine.act(game, self, enemy);
             // if is still running, then carry on
             if (currentRoutine.isRunning()) {

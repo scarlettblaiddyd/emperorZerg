@@ -99,6 +99,7 @@ public class emperorZerg extends DefaultBWListener {
         enemy.self = game.enemies().get(0);
         enemy.race  = enemy.self.getRace();
         enemy.buildings = new LinkedList<UnitType>();
+        enemy.basePos = new LinkedList<Position>();
         //newScoutPath();
 
         routine = new Repeat(new Selector());

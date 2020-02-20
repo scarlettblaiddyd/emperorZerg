@@ -14,7 +14,11 @@ public class BuildPool extends Routine{
         super.start();
     }
 
-    public void reset() { }
+    public void reset() {
+        morpher = null;
+        poolTile = null;
+        start();
+    }
 
     public BuildPool(Game game, Player self, enemyChalkBoard enemy){
         super();
