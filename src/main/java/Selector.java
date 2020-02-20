@@ -55,7 +55,8 @@ public class Selector extends Routine {
             // then the state is the last routine's state. (Success for OR was already handled)
             if (routineQueue.peek() == null) {
                 this.state = currentRoutine.getState();
-            } else {
+            }
+            else {
                 currentRoutine = routineQueue.poll();
                 currentRoutine.start();
             }

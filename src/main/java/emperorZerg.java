@@ -40,6 +40,7 @@ public class emperorZerg extends DefaultBWListener {
     enemyChalkBoard enemy  = new enemyChalkBoard();
     LinkedList<UnitType> morphingUnits = new LinkedList<UnitType>();
     Routine routine;
+    boolean skipFrame = false;
     //LinkedList<UnitType> enemyBuildings     = new LinkedList<UnitType>();
 
     void newScoutPath(){
@@ -108,7 +109,13 @@ public class emperorZerg extends DefaultBWListener {
         if(routine.getState() == null){
             routine.start();
         }
-        routine.act(game, self, enemy);
+        if(skipFrame) {
+            skipFrame = false;
+        }
+        else{
+            routine.act(game, self, enemy);
+            skipFrame = true;
+        }
 
         // General info for keeping track of AI behavior
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
@@ -116,6 +123,15 @@ public class emperorZerg extends DefaultBWListener {
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
         game.drawTextScreen(10, 40, "Enemy is playing as " + enemy.race);
         game.drawTextScreen(10, 50,"Enemy units: " + enemy.buildings);
+        int cnt = 0;
+        for(Unit unit : self.getUnits()){
+            UnitType unitType = unit.getType();
+            if(unitType.isWorker()) {
+                cnt++;
+            }
+        }
+        game.drawTextScreen(10, 100,"Drones: " + cnt);
+
 
 
         // Print all starting positions for reference
@@ -131,6 +147,7 @@ public class emperorZerg extends DefaultBWListener {
         }
 
         /****************************SCOUT BEHAVIOR***************************************/
+        /*
         // If there is no scout, find a worker to turn into a scout
         if (sChalk.scout == null){
             System.out.println("Looking for a unit to turn into a scout");
@@ -181,9 +198,11 @@ public class emperorZerg extends DefaultBWListener {
             }
         }
 
+        */
 
         /****************** TRAINING UNITS ************************/
         // Train new overlords when supply is low
+        /*
         if (self.supplyTotal() - self.supplyUsed() <= 2 && self.supplyTotal() <= 400 && !morphingUnits.contains(UnitType.Zerg_Overlord)){
             game.drawTextScreen(20 , 20, "Trying to make overlord");
             Unit morpher = null;
@@ -195,7 +214,7 @@ public class emperorZerg extends DefaultBWListener {
             }
             morpher.morph(UnitType.Zerg_Overlord);
         }
-        /*else {
+        else {
             // Train drones when we can, but only if we have the supply for it
 
             for (Unit trainer : self.getUnits()) {

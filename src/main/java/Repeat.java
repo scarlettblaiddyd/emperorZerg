@@ -61,7 +61,7 @@ public class Repeat extends Routine {
             if (selector != null) {
                 selector.addRoutine(new ZergStrat(game, self, enemy));
                 selector.addRoutine(new ProtossStrat(game, self, enemy));
-                selector.addRoutine(new TerranStrat(game, self, enemy));
+                selector.addRoutine(new TerranStrat(game, self, enemy, new Sequencer()));
                 selector.act(game, self, enemy);
             }
         }
