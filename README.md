@@ -8,7 +8,7 @@ Our bot's current high level strategy employs a classic early-game "build order"
 
 This strategy is implemented via a behavior tree mechanism. We chose a behavior tree because of its modularity. This modularity allows us to not only re-use entire behaviors when desired, but also to easily replace or modify entire behaviors. For example, if we wished to use a different build order in the early game, we need only change the contents of a single branch in our tree.
 
-Control Mechanism Implementation:
+### Control Mechanism Implementation:
 
 The behavior tree is implemented through a generic "Routine" class, which describes methods to start itself, take action on a given frame, and indicate success or failure to any parent Routines. Derived from the generic Routine class are our three main node types: Repeaters, Sequencers, and Selectors. These all act in the behavior tree as their namesakes insinuate. A repeater will repeat a routine until it recieves a "fail" signal. A selector will be given routines and put them into a queue, which it will, in the given order, run each routine until it recieves a 'successful' signal. A sequencer will run every routine it is given, sending up a 'successful' signal after it has completed all of the routines in its queue.
 
