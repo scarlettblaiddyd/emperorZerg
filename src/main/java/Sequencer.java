@@ -75,6 +75,7 @@ public class Sequencer extends Routine {
         }
         else {
             start();
+            System.out.println("Starting routine: " + currentRoutine.toString());
         }
 
     }

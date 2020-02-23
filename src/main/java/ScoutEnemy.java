@@ -28,6 +28,15 @@ public class ScoutEnemy extends Routine {
     }
 
     public void act(Game game, Player self, enemyChalkBoard enemy) {
+        if(this.startLocations.contains(self.getStartLocation())){
+            System.out.println("Removing our start location from the list of possible locations");
+            if( this.startLocations.remove(self.getStartLocation()) ){
+                System.out.println("Successfully removed");
+            }
+            else{
+                System.out.println("Failed to remove");
+            }
+        }
         if (scout == null){
             System.out.println("Looking for a unit to turn into a scout");
             for(Unit unit : self.getUnits()){
@@ -49,9 +58,6 @@ public class ScoutEnemy extends Routine {
         }
         if(scout != null && scout.isIdle()){
             moveTo = startLocations.poll().toPosition();
-            if(moveTo == self.getStartLocation().toPosition()){
-                moveTo = startLocations.poll().toPosition();
-            }
             scout.move(moveTo);
         }
     }

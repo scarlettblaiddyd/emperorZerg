@@ -8,6 +8,7 @@ public class ZerglingRush extends Routine {
     private final Player self;
     private final enemyChalkBoard enemy;
     private Position target = null;
+    private final int num;
 
     public void reset() {
 
@@ -17,11 +18,12 @@ public class ZerglingRush extends Routine {
         super.start();
     }
 
-    public ZerglingRush(Game game, Player self, enemyChalkBoard enemy){
+    public ZerglingRush(Game game, Player self, enemyChalkBoard enemy, int num){
         super();
         this.game = game;
         this.self = self;
         this.enemy = enemy;
+        this.num = num;
     }
 
     public void act(Game game, Player self, enemyChalkBoard enemy) {
@@ -35,7 +37,7 @@ public class ZerglingRush extends Routine {
                 zerglings++;
             }
         }
-        if(zerglings >= 6){
+        if(zerglings >= num){
             System.out.println("Zerglings ready, rushing enemy base");
             for(Unit zergling: self.getUnits()){
                 if(zergling.getType() == UnitType.Zerg_Zergling) {
