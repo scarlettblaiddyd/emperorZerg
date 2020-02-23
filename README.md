@@ -12,7 +12,6 @@ The behavior tree is implemented through classes called routines. These all act 
 
 The higherarchy looks something like this:
 
-Routine
 - Repeat
   - Selector
     - TerranStrat
