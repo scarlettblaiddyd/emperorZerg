@@ -2,15 +2,15 @@
 
 ## Bot Milestone 2 Writeup
 
-High-Level Strategy:
+### High-Level Strategy:
 
-This bot implements a behavior tree which sets up an early-game strategy (known as 9 Pool), then sends units at the enemy base to attack it and potentially take it down before they can set up their strategy. 
+Our bot's current high level strategy employs a classic early-game "build order" known as 9 Pool. This build order focuses on getting early Zerglings and sending them to harass and slow the enemies build progress. It even has the potential to overwhelm the enemy and end the game early, but even if it fails to do so, it will hopefully slow their own strategy enough to give us an edge in the mid game.
 
-This high-level strategy works by implementing our behavior tree control mechanism, using a selector to determine the enemy race the bot is facing, and with that information implements a set strategy. Within the specific strategy, a sequencer is used to loop through the strategy implementation in order to get the correct build order so that the troops can be sent to correctly harass the enemy base.
+This strategy is implemented via a behavior tree mechanism. We chose a behavior tree because of its modularity. This modularity allows us to not only re-use entire behaviors when desired, but also to easily replace or modify entire behaviors. For example, if we wished to use a different build order in the early game, we need only change the contents of a single branch in our tree.
 
 Control Mechanism Implementation:
 
-The behavior tree is implemented through classes called routines. These all act in the behavior tree as their namesakes insinuate. A repeater will repeat a routine until it recieves a "fail" signal. A selector will be given routines and put them into a queue, which it will, in the given order, run each routine until it recieves a 'successful' signal. A sequencer will run every routine it is given, sending up a 'successful' signal after it has completed all of the routines in its queue.
+The behavior tree is implemented through a generic "Routine" class, which describes methods to start itself, take action on a given frame, and indicate success or failure to any parent Routines. Derived from the generic Routine class are our three main node types: Repeaters, Sequencers, and Selectors. These all act in the behavior tree as their namesakes insinuate. A repeater will repeat a routine until it recieves a "fail" signal. A selector will be given routines and put them into a queue, which it will, in the given order, run each routine until it recieves a 'successful' signal. A sequencer will run every routine it is given, sending up a 'successful' signal after it has completed all of the routines in its queue.
 
 The higherarchy looks something like this:
 
@@ -22,6 +22,14 @@ The higherarchy looks something like this:
         - MorphUnit
         - ScoutEnemy
     - ProtossStrat
+
+## Installation
+
+After ensuring that you have all the dependencies listed below, clone this repository, and run the command from within it:
+```
+make build
+```
+
     
 ## Dependencies
 
@@ -50,5 +58,3 @@ Something like
 ```
 sudo ln -s [where-you-put-vnc] /usr/bin/vnc-viewer
 ```
-
-Clone this repository, and run our makefile with "make build".
