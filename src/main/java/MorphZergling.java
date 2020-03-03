@@ -18,6 +18,15 @@ public class MorphZergling extends Routine {
     public void reset(){
 
     }
+
+    public MorphZergling(ChalkBoard info, int num){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+        this.num = num;
+    }
+
     public MorphZergling(Game game, Player self, enemyChalkBoard enemy, int num){
         super();
         this.game = game;
@@ -27,7 +36,7 @@ public class MorphZergling extends Routine {
     }
 
     @Override
-    public void act(Game game, Player self, enemyChalkBoard enemy){
+    public void act(ChalkBoard info){
         // CHECK FOR MINERALS
         if (self.minerals() < 25) return;
         if(self.supplyTotal() - self.supplyUsed() <= 2) return;

@@ -17,6 +17,14 @@ public class MorphOverlord extends Routine {
     public void reset(){
 
     }
+
+    public MorphOverlord(ChalkBoard info){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+    }
+
     public MorphOverlord(Game game, Player self, enemyChalkBoard enemy){
         super();
         this.game = game;
@@ -25,7 +33,7 @@ public class MorphOverlord extends Routine {
     }
 
     @Override
-    public void act(Game game, Player self, enemyChalkBoard enemy){
+    public void act(ChalkBoard info){
         // CHECK FOR MINERALS
         if (self.minerals() < 100) return;
         for (Unit trainer : self.getUnits()) {

@@ -1,6 +1,3 @@
-import bwapi.Game;
-import bwapi.Player;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -37,9 +34,9 @@ public class Selector extends Routine {
         currentRoutine.start();
     }
 
-    public void act(Game game, Player self, enemyChalkBoard enemy){
+    public void act(ChalkBoard info){
         if (currentRoutine != null) {
-            currentRoutine.act(game, self, enemy);
+            currentRoutine.act(info);
             // if is still running, then carry on
             if (currentRoutine.isRunning()) {
                 return;

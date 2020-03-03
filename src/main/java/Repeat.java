@@ -1,11 +1,7 @@
-import bwapi.Game;
-import bwapi.Player;
-import bwapi.Race;
-
 public class Repeat extends Routine {
 
-    private final Routine routine;
-    private final Selector selector;
+    public final Routine routine;
+    public final Selector selector;
     private int times;
     private int originalTimes;
 
@@ -52,18 +48,23 @@ public class Repeat extends Routine {
     }
 
     @Override
-    public void act(Game game, Player self, enemyChalkBoard enemy) {
-        if (isRunning()) {
-            if (!game.isInGame()) {
-                fail();
+    public void act(ChalkBoard info) {
+        if(routine.isFailure()){
+            fail();
+        }
+        else if(routine.isSuccess()){
+            if(times == 0){
+                succeed();
                 return;
             }
-            if (selector != null) {
-                selector.addRoutine(new ZergStrat(game, self, enemy));
-                selector.addRoutine(new ProtossStrat(game, self, enemy));
-                selector.addRoutine(new TerranStrat(game, self, enemy, new Sequencer()));
-                selector.act(game, self, enemy);
+            if(times > 0 || times <= -1){
+                times--;
+                routine.reset();
+                routine.start();
             }
+        }
+        if (routine.isRunning()) {
+            routine.act(info);
         }
     }
 }

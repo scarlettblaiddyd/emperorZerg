@@ -1,6 +1,3 @@
-import bwapi.Game;
-import bwapi.Player;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -37,10 +34,10 @@ public class Sequencer extends Routine {
         currentRoutine.start();
     }
 
-    public void act(Game game, Player self, enemyChalkBoard enemy){
+    public void act(ChalkBoard info){
         if (currentRoutine != null) {
             //game.drawTextScreen(10, 80, "current routine: " + currentRoutine.toString());
-            currentRoutine.act(game, self, enemy);
+            currentRoutine.act(info);
             // if is still running, then carry on
             if (currentRoutine.isRunning()) {
                 return;

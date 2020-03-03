@@ -19,6 +19,14 @@ public class ScoutEnemy extends Routine {
         super.start();
     }
 
+    public ScoutEnemy(ChalkBoard info){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+        this.startLocations = new LinkedList<TilePosition>(game.getStartLocations());
+    }
+
     public ScoutEnemy(Game game, Player self, enemyChalkBoard enemy){
         super();
         this.game = game;
@@ -27,7 +35,7 @@ public class ScoutEnemy extends Routine {
         this.startLocations = new LinkedList<TilePosition>(game.getStartLocations());
     }
 
-    public void act(Game game, Player self, enemyChalkBoard enemy) {
+    public void act(ChalkBoard info) {
         if(this.startLocations.contains(self.getStartLocation())){
             System.out.println("Removing our start location from the list of possible locations");
             if( this.startLocations.remove(self.getStartLocation()) ){

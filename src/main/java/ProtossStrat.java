@@ -14,14 +14,15 @@ public class ProtossStrat extends Routine {
 
     public void reset() { }
 
-    public ProtossStrat(Game game, Player self, enemyChalkBoard enemy){
+    public ProtossStrat(ChalkBoard info){
         super();
-        this.game = game;
-        this.self = self;
-        this.enemy = enemy;
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
     }
 
-    public void act(Game game, Player self, enemyChalkBoard enemy) {
+
+    public void act(ChalkBoard info) {
         if (enemy.race != Race.Protoss) {
             System.out.println("VS PROTOSS FAIL");
             fail();

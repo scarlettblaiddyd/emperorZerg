@@ -3,10 +3,7 @@ import bwapi.DefaultBWListener;
 import bwapi.Game;
 import bwapi.Player;
 import bwapi.*;
-import sun.nio.cs.ext.JISAutoDetect;
 
-import javax.sound.midi.SysexMessage;
-import java.rmi.MarshalException;
 import java.util.*;
 
 class scoutChalkBoard{
@@ -20,6 +17,20 @@ class scoutChalkBoard{
     int currDest;
     String context;
     List<TilePosition> startPos;
+}
+
+class ChalkBoard {
+    Game game;
+    BWClient bwClient;
+    enemyChalkBoard ecb;
+    playerChalkBoard pcb;
+}
+
+class playerChalkBoard{
+    Player self;
+    LinkedList<UnitType> army;
+    LinkedList<UnitType> buildings;
+    LinkedList<UnitType> morphingUnits;
 }
 
 class enemyChalkBoard{
@@ -38,6 +49,8 @@ public class emperorZerg extends DefaultBWListener {
     List<Region> MapRegions;
     scoutChalkBoard sChalk = new scoutChalkBoard();
     enemyChalkBoard enemy  = new enemyChalkBoard();
+    playerChalkBoard player = new playerChalkBoard();
+    ChalkBoard info = new ChalkBoard();
     LinkedList<UnitType> morphingUnits = new LinkedList<UnitType>();
     Routine routine;
     boolean skipFrame = false;
@@ -88,8 +101,16 @@ public class emperorZerg extends DefaultBWListener {
     @Override
     public void onStart() {
         // Setup those nice global variables that we use all the time
+        info.bwClient = bwClient;
         game = bwClient.getGame();
+        info.game = game;
         self = game.self();
+        player.self = self;
+        info.ecb = enemy;
+        info.pcb = player;
+        info.pcb.morphingUnits = morphingUnits;
+
+
         MapRegions = game.getAllRegions();
         sChalk.scout = null;
 
@@ -102,7 +123,7 @@ public class emperorZerg extends DefaultBWListener {
         enemy.basePos = new LinkedList<Position>();
         //newScoutPath();
 
-        routine = new Repeat(new Selector());
+        routine = new BaseRepeat(info, new Repeat(new Selector()));
     }
 
     @Override
@@ -114,7 +135,7 @@ public class emperorZerg extends DefaultBWListener {
             skipFrame = false;
         }
         else{
-            routine.act(game, self, enemy);
+            routine.act(info);
             skipFrame = true;
         }
 

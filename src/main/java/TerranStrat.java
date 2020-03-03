@@ -13,33 +13,34 @@ public class TerranStrat extends Routine {
 
     public void reset() { }
 
-    public TerranStrat(Game game, Player self, enemyChalkBoard enemy, Sequencer sequencer){
+    public TerranStrat(ChalkBoard info, Sequencer sequencer){
         super();
-        this.game = game;
-        this.self = self;
-        this.enemy = enemy;
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
         this.sequencer = sequencer;
     }
 
-    public void act(Game game, Player self, enemyChalkBoard enemy) {
+
+    public void act(ChalkBoard info) {
         if(sequencer.state == RoutineState.Success){
             succeed();
             return;
         }
-        if (enemy.race != Race.Terran) {
+        if (info.ecb.race != Race.Terran) {
             System.out.println("VS TERRAN FAIL");
             fail();
         }
-        sequencer.addRoutine(new MorphUnit(game, self, enemy, UnitType.Zerg_Drone, 5));
-        sequencer.addRoutine(new BuildPool(game, self, enemy));
-        sequencer.addRoutine(new MorphUnit(game, self, enemy, UnitType.Zerg_Drone, 1));
-        sequencer.addRoutine(new BuildExtractor(game, self, enemy));
-        sequencer.addRoutine(new MorphUnit(game, self, enemy, UnitType.Zerg_Drone, 1));
-        sequencer.addRoutine(new MorphUnit(game, self, enemy, UnitType.Zerg_Overlord, 1));
-        sequencer.addRoutine(new MorphUnit(game, self, enemy, UnitType.Zerg_Zergling, 3));
-        sequencer.addRoutine(new ScoutEnemy(game, self, enemy));
-        sequencer.addRoutine(new ZerglingRush(game, self, enemy, 6));
-        sequencer.act(game, self, enemy);
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 5));
+        sequencer.addRoutine(new BuildPool(info));
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
+        sequencer.addRoutine(new BuildExtractor(info));
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1));
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
+        sequencer.addRoutine(new ScoutEnemy(info));
+        sequencer.addRoutine(new ZerglingRush(info, 6));
+        sequencer.act(info);
         //game.drawTextScreen(10, 70, sequencer.routineQueue.toString());
     }
 }

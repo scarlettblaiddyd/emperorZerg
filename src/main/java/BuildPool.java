@@ -20,13 +20,20 @@ public class BuildPool extends Routine{
         start();
     }
 
+    public BuildPool(ChalkBoard info){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+    }
+
     public BuildPool(Game game, Player self, enemyChalkBoard enemy){
         super();
         this.game = game;
         this.self = self;
         this.enemy = enemy;
     }
-    public void act(Game game, Player self, enemyChalkBoard enemy) {
+    public void act(ChalkBoard info) {
         // BUILD A SPAWNING POOL
         // CHECK FOR MINERALS
         for(Unit unit: self.getUnits()){

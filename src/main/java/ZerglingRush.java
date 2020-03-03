@@ -1,6 +1,5 @@
 import bwapi.*;
 import bwapi.Player;
-import bwapi.PlayerType;
 import bwapi.Position;
 
 public class ZerglingRush extends Routine {
@@ -18,6 +17,14 @@ public class ZerglingRush extends Routine {
         super.start();
     }
 
+    public ZerglingRush(ChalkBoard info, int num){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+        this.num = num;
+    }
+
     public ZerglingRush(Game game, Player self, enemyChalkBoard enemy, int num){
         super();
         this.game = game;
@@ -26,7 +33,7 @@ public class ZerglingRush extends Routine {
         this.num = num;
     }
 
-    public void act(Game game, Player self, enemyChalkBoard enemy) {
+    public void act(ChalkBoard info) {
         if(enemy.basePos.peek() != null && target == null){
             System.out.println("Enemy base located, prepping attack");
             target = enemy.basePos.getFirst();

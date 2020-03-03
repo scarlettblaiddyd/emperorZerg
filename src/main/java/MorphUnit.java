@@ -19,21 +19,23 @@ public class MorphUnit extends Routine {
     public void reset(){
 
     }
-    public MorphUnit(Game game, Player self, enemyChalkBoard enemy, UnitType type, int num){
+
+    public MorphUnit(ChalkBoard info, UnitType type, int num){
         super();
-        this.game = game;
-        this.self = self;
-        this.enemy = enemy;
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
         this.type = type;
         this.num = num;
     }
 
+
     @Override
-    public void act(Game game, Player self, enemyChalkBoard enemy){
+    public void act(ChalkBoard info){
         // CHECK FOR MINERALS
-        if (self.minerals() < type.mineralPrice()) return;
+        if (info.pcb.self.minerals() < type.mineralPrice()) return;
         if( (type != UnitType.Zerg_Overlord) && (self.supplyTotal() - self.supplyUsed() < 2) ) return;
-        for (Unit trainer : self.getUnits()) {
+        for (Unit trainer : info.pcb.self.getUnits()) {
             UnitType unitType = trainer.getType();
             if (unitType.isBuilding() && !unitType.buildsWhat().isEmpty() && !trainer.isMorphing()) {
                 if (trainer.canMorph()) {

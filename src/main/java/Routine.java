@@ -1,6 +1,3 @@
-import bwapi.Game;
-import bwapi.Player;
-
 public abstract class Routine {
     public enum RoutineState {
         Success,
@@ -18,7 +15,7 @@ public abstract class Routine {
 
     public abstract void reset();
 
-    public abstract void act(Game game, Player self, enemyChalkBoard enemy);
+    public abstract void act(ChalkBoard info);
 
     protected void succeed() {
         this.state = RoutineState.Success;

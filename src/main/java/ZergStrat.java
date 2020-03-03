@@ -14,6 +14,13 @@ public class ZergStrat extends Routine {
 
     public void reset() { }
 
+    public ZergStrat(ChalkBoard info){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+    }
+
     public ZergStrat(Game game, Player self, enemyChalkBoard enemy){
         super();
         this.game = game;
@@ -21,7 +28,7 @@ public class ZergStrat extends Routine {
         this.enemy = enemy;
     }
 
-    public void act(Game game, Player self, enemyChalkBoard enemy) {
+    public void act(ChalkBoard info) {
         if (enemy.race != Race.Zerg) {
             System.out.println("VS ZERG FAIL");
             fail();
