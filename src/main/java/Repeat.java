@@ -1,7 +1,7 @@
 public class Repeat extends Routine {
 
-    public final Routine routine;
-    public final Selector selector;
+    public  Routine routine;
+    public  Selector selector;
     private int times;
     private int originalTimes;
 
@@ -49,15 +49,22 @@ public class Repeat extends Routine {
 
     @Override
     public void act(ChalkBoard info) {
+        if(routine.state == null){
+            routine.start();
+            return;
+        }
         if(routine.isFailure()){
             fail();
         }
         else if(routine.isSuccess()){
+            System.out.println("Repetition completed");
             if(times == 0){
+                System.out.println("Repeated the specified number of times, succeeding");
                 succeed();
                 return;
             }
             if(times > 0 || times <= -1){
+                System.out.println("Have not repeated enough, or infinitely repeating");
                 times--;
                 routine.reset();
                 routine.start();

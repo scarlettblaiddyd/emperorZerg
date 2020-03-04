@@ -25,12 +25,15 @@ public class TerranStrat extends Routine {
     public void act(ChalkBoard info) {
         if(sequencer.state == RoutineState.Success){
             succeed();
+            info.pcb.buildOrderComplete = true;
+            System.out.println("BASE: Build order complete");
             return;
         }
         if (info.ecb.race != Race.Terran) {
-            System.out.println("VS TERRAN FAIL");
+            System.out.println("BASE: VS TERRAN FAIL");
             fail();
         }
+
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 5));
         sequencer.addRoutine(new BuildPool(info));
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
@@ -38,8 +41,6 @@ public class TerranStrat extends Routine {
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1));
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
-        sequencer.addRoutine(new ScoutEnemy(info));
-        sequencer.addRoutine(new ZerglingRush(info, 6));
         sequencer.act(info);
         //game.drawTextScreen(10, 70, sequencer.routineQueue.toString());
     }

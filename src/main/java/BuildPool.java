@@ -45,7 +45,7 @@ public class BuildPool extends Routine{
         if (self.minerals() < 200) return;
         if (morpher == null) {
             for (Unit unit : self.getUnits()) {
-                if (unit.getType().isWorker() && morpher == null) {
+                if (unit.getType().isWorker() && morpher == null && info.pcb.scout != unit) {
                     morpher = unit;
                     morpher.stop();
                     break;

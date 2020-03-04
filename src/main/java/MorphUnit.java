@@ -37,14 +37,18 @@ public class MorphUnit extends Routine {
         if( (type != UnitType.Zerg_Overlord) && (self.supplyTotal() - self.supplyUsed() < 2) ) return;
         for (Unit trainer : info.pcb.self.getUnits()) {
             UnitType unitType = trainer.getType();
-            if (unitType.isBuilding() && !unitType.buildsWhat().isEmpty() && !trainer.isMorphing()) {
+            if (unitType == UnitType.Zerg_Larva && !unitType.buildsWhat().isEmpty() && !trainer.isMorphing() && !trainer.canCancelMorph()) {
                 if (trainer.canMorph()) {
-                    trainer.morph(type);
+                    //System.out.println("BASE: Found a unit to morph into " + type + ", " + trainer);
+                    if(!trainer.morph(type)){
+                        continue;
+                    }
                     num -=1;
-                    System.out.println("Morphing new unit: " + type.toString()  +", number left: " + num);
+                    System.out.println("BASE: Morphing new unit: " + type.toString()  +", number left: " + num);
                     if(num <= 0) {
                         succeed();
                     }
+                    return;
                 }
             }
         }

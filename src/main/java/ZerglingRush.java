@@ -25,29 +25,23 @@ public class ZerglingRush extends Routine {
         this.num = num;
     }
 
-    public ZerglingRush(Game game, Player self, enemyChalkBoard enemy, int num){
-        super();
-        this.game = game;
-        this.self = self;
-        this.enemy = enemy;
-        this.num = num;
-    }
 
     public void act(ChalkBoard info) {
         if(enemy.basePos.peek() != null && target == null){
-            System.out.println("Enemy base located, prepping attack");
+            System.out.println("ARMY: Enemy base located, prepping attack");
             target = enemy.basePos.getFirst();
         }
         int zerglings = 0;
         for(Unit unit: self.getUnits()){
-            if(unit.getType() == UnitType.Zerg_Zergling){
+            if(unit.getType() == UnitType.Zerg_Zergling && !info.pcb.army.contains(unit)){
                 zerglings++;
             }
         }
         if(zerglings >= num){
-            System.out.println("Zerglings ready, rushing enemy base");
+            System.out.println("ARMY: Zerglings ready, rushing enemy base");
             for(Unit zergling: self.getUnits()){
-                if(zergling.getType() == UnitType.Zerg_Zergling) {
+                if(zergling.getType() == UnitType.Zerg_Zergling && !info.pcb.army.contains(zergling)) {
+                    info.pcb.army.add(zergling);
                     zergling.attack(target);
                 }
             }
