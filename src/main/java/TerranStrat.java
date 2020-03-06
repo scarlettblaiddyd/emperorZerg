@@ -4,44 +4,38 @@ public class TerranStrat extends Routine {
     private final Game game;
     private final Player self;
     private final enemyChalkBoard enemy;
-    private Sequencer sequencer;
+    private Selector selector;
 
     @Override
     public void start(){
         super.start();
     }
 
-    public void reset() { }
+    public void reset() {
+        selector = new Selector();
+        start();
+    }
 
-    public TerranStrat(ChalkBoard info, Sequencer sequencer){
+    public TerranStrat(ChalkBoard info, Selector selector){
         super();
         this.game = info.game;
         this.self = info.pcb.self;
         this.enemy = info.ecb;
-        this.sequencer = sequencer;
+        this.selector = selector;
     }
 
 
     public void act(ChalkBoard info) {
-        if(sequencer.state == RoutineState.Success){
-            succeed();
-            info.pcb.buildOrderComplete = true;
-            System.out.println("BASE: Build order complete");
-            return;
-        }
         if (info.ecb.race != Race.Terran) {
             System.out.println("BASE: VS TERRAN FAIL");
             fail();
         }
-
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 5));
-        sequencer.addRoutine(new BuildPool(info));
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
-        sequencer.addRoutine(new BuildExtractor(info));
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1));
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
-        sequencer.act(info);
-        //game.drawTextScreen(10, 70, sequencer.routineQueue.toString());
+        selector.addRoutine(new NinePool(info, new Sequencer()));
+        selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost));
+        selector.act(info);
+        if(selector.isFailure()){
+            reset();
+        }
+        //game.drawTextScreen(10, 70, selector.routineQueue.toString());
     }
 }

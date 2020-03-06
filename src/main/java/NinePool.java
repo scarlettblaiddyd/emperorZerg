@@ -23,9 +23,11 @@ public class NinePool extends Routine {
 
     public void act(ChalkBoard info) {
         if (info.pcb.buildOrderComplete) {
+            System.out.println("BASE: Build order already completed");
             fail();
             return;
         }
+
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 5));
         sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Spawning_Pool));
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
@@ -47,5 +49,12 @@ public class NinePool extends Routine {
             sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
         }
         sequencer.act(info);
+
+        if(sequencer.state == RoutineState.Success){
+            succeed();
+            info.pcb.buildOrderComplete = true;
+            System.out.println("BASE: Build order complete");
+            return;
+        }
     }
 }

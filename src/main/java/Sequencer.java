@@ -44,7 +44,7 @@ public class Sequencer extends Routine {
             }
 
             if (currentRoutine.isSuccess()) {
-                System.out.println(currentRoutine.toString() + "is success");
+                System.out.println("SEQUENCER: " + currentRoutine.toString() + "is success");
                 //succeed();
             }
 
@@ -56,23 +56,23 @@ public class Sequencer extends Routine {
             }
              */
             if (routineQueue.peek() == null) {
-                System.out.println("No more routines, final routine = " +currentRoutine.toString());
+                System.out.println("SEQUENCER: No more routines, final routine = " +currentRoutine.toString());
                 this.state = currentRoutine.getState();
                 if(currentRoutine.isSuccess()){
-                    System.out.println("Final sucess, should kick out: " + currentRoutine.isSuccess());
+                    System.out.println("SEQUENCER: Final sucess, should kick out: " + currentRoutine.isSuccess());
                     succeed();
                 }
                 return;
             }
             else {
                 currentRoutine = routineQueue.poll();
-                System.out.println("polled: " + currentRoutine.toString());
+                System.out.println("SEQUENCER: polled: " + currentRoutine.toString());
                 currentRoutine.start();
             }
         }
         else {
             start();
-            System.out.println("Starting routine: " + currentRoutine.toString());
+            System.out.println("SEQUENCER: Starting routine: " + currentRoutine.toString());
         }
 
     }

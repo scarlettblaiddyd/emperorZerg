@@ -29,7 +29,7 @@ public class ArmyRepeat extends Routine {
         else{
             // Just wait
             System.out.println("ARMY: Army idling");
-            this.routine = new ArmyIdle(200);
+            this.routine = new ManageDrones(info);
         }
         this.state = RoutineState.Running;
     }

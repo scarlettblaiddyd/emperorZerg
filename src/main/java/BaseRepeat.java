@@ -21,16 +21,9 @@ public class BaseRepeat extends Routine {
             selector = new Selector();
             System.out.println("BASE: Creating new selector for base repeater");
         }
-        if(!info.pcb.buildOrderComplete) {
-            System.out.println("BASE: Build order not complete, adding three strats to selector");
-            selector.addRoutine(new ZergStrat(info));
-            selector.addRoutine(new ProtossStrat(info));
-            selector.addRoutine(new TerranStrat(info, new Sequencer()));
-        }
-        else if (info.pcb.buildOrderComplete) {
-            System.out.println("BASE: Build order complete, morphing Zerglings");
-            selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
-        }
+        selector.addRoutine(new ZergStrat(info));
+        selector.addRoutine(new ProtossStrat(info));
+        selector.addRoutine(new TerranStrat(info, new Selector()));
         this.state = RoutineState.Running;
     }
 
