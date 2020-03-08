@@ -3,6 +3,7 @@ import bwapi.DefaultBWListener;
 import bwapi.Game;
 import bwapi.Player;
 import bwapi.*;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.*;
 
@@ -29,10 +30,12 @@ class ChalkBoard {
 class playerChalkBoard{
     Player self;
     LinkedList<Unit> army;
-    LinkedList<UnitType> buildings;
+    LinkedList<Unit> buildings;
+    LinkedList<UnitType> buildTypes;
     LinkedList<UnitType> morphingUnits;
     Boolean buildOrderComplete;
     Unit scout;
+    Hashtable<UpgradeType, Integer> upgrades;
 }
 
 class enemyChalkBoard{
@@ -110,12 +113,19 @@ public class emperorZerg extends DefaultBWListener {
         info.game = game;
         self = game.self();
         player.self = self;
+
+        // Player attributes
         info.ecb = enemy;
         info.pcb = player;
         info.pcb.morphingUnits = morphingUnits;
         info.pcb.buildOrderComplete = false;
         info.pcb.scout = null;
         info.pcb.army = new LinkedList<Unit>();
+        // A dictionary to tell us which upgrades we have researched
+        info.pcb.upgrades = new Hashtable<UpgradeType, Integer>();
+        info.pcb.upgrades.put(UpgradeType.Metabolic_Boost, 0);
+        info.pcb.buildings = new LinkedList<Unit>();
+        info.pcb.buildTypes = new LinkedList<UnitType>();
 
 
         MapRegions = game.getAllRegions();
@@ -134,10 +144,28 @@ public class emperorZerg extends DefaultBWListener {
 
         buildRepeater = new Repeat(new BaseRepeat(info));
         armyRepeater = new Repeat(new ArmyRepeat(info));
+
+        // Populate our list of buildings
+        for(Unit unit: self.getUnits()){
+            if(unit.getType().isBuilding() && unit.getType() != UnitType.Zerg_Larva){
+                //info.pcb.buildings.add(unit);
+                //info.pcb.buildTypes.add(unit.getType());
+            }
+        }
     }
 
     @Override
     public void onFrame() {
+
+        info.pcb.buildings = new LinkedList<Unit>();
+        info.pcb.buildTypes = new LinkedList<UnitType>();
+        for(Unit unit: self.getUnits()){
+            if(unit.getType().isBuilding() && unit.getType() != UnitType.Zerg_Larva){
+                info.pcb.buildings.add(unit);
+                info.pcb.buildTypes.add(unit.getType());
+            }
+        }
+
         if(buildRepeater.getState() == null){
             buildRepeater.start();
         }
@@ -153,11 +181,13 @@ public class emperorZerg extends DefaultBWListener {
             skipFrame = true;
         }
 
+
         // General info for keeping track of AI behavior
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
         game.drawTextScreen(10, 40, "Army: " + info.pcb.army);
-        game.drawTextScreen(10, 50, "Enemy is playing as " + enemy.race);
+        game.drawTextScreen(10, 50, "Buildings: " + info.pcb.buildings);
+        game.drawTextScreen(10, 60, "Building types: " + info.pcb.buildTypes);
         //game.drawTextScreen(10, 60,"Enemy units: " + enemy.buildings);
         int cnt = 0;
         for(Unit unit : self.getUnits()){

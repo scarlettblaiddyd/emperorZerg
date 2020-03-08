@@ -10,6 +10,7 @@ public class MorphUnit extends Routine {
     private final enemyChalkBoard enemy;
     private final UnitType type;
     private int num;
+    private boolean wait;
 
     @Override
     public void start(){
@@ -20,21 +21,32 @@ public class MorphUnit extends Routine {
 
     }
 
-    public MorphUnit(ChalkBoard info, UnitType type, int num){
+    public MorphUnit(ChalkBoard info, UnitType type, int num, boolean wait){
         super();
         this.game = info.game;
         this.self = info.pcb.self;
         this.enemy = info.ecb;
         this.type = type;
         this.num = num;
+        this.wait = wait;
     }
 
 
     @Override
     public void act(ChalkBoard info){
         // CHECK FOR MINERALS
-        if (info.pcb.self.minerals() < type.mineralPrice()) return;
-        if( (type != UnitType.Zerg_Overlord) && (self.supplyTotal() - self.supplyUsed() < 2) ) return;
+        if (info.pcb.self.minerals() < type.mineralPrice()) {
+            if(!wait){
+                fail();
+            }
+            return;
+        }
+        if( (type != UnitType.Zerg_Overlord) && (self.supplyTotal() - self.supplyUsed() < 2) ) {
+            if(!wait){
+                fail();
+            }
+            return;
+        }
         for (Unit trainer : info.pcb.self.getUnits()) {
             UnitType unitType = trainer.getType();
             if (unitType == UnitType.Zerg_Larva && !unitType.buildsWhat().isEmpty() && !trainer.isMorphing() && !trainer.canCancelMorph()) {
@@ -52,6 +64,6 @@ public class MorphUnit extends Routine {
                 }
             }
         }
-        //fail();
+        fail();
     }
 }

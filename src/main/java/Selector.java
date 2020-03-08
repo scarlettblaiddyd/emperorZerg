@@ -28,6 +28,7 @@ public class Selector extends Routine {
         // start the current sequence
         super.start();
         // reset the current queue and copy the routines from setup
+        //System.out.println("SELECTOR: Starting selector");
         routineQueue.clear();
         routineQueue.addAll(routines);
         currentRoutine = routineQueue.poll();

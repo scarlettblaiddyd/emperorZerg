@@ -28,25 +28,25 @@ public class NinePool extends Routine {
             return;
         }
 
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 5));
-        sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Spawning_Pool));
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
-        sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Extractor));
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
-        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1));
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 5, true));
+        sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Spawning_Pool, true));
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, true));
+        sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Extractor, true));
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, true));
+        sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, true));
         if (info.ecb.race == Race.Protoss) {
-            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
-            sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Hatchery));
+            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3, true));
+            sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Hatchery, true));
         }
         else if (info.ecb.race == Race.Zerg) {
-            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1));
-            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
+            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, true));
+            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3, true));
             // research
             // morph lair
             // build spire
         }
         else { // ELSE == TERRAN STRAT
-            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
+            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3, true));
         }
         sequencer.act(info);
 

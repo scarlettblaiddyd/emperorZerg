@@ -26,20 +26,6 @@ public class ArmyRepeat extends Routine {
         selector.addRoutine(new ArmyIdle(100));
         selector.addRoutine(new ManageDrones(info));
         selector.addRoutine(new ZerglingRush(info, 6));
-        /*
-        if(!info.pcb.buildOrderComplete && !info.ecb.buildTypes.contains(UnitType.Terran_Command_Center)){
-            System.out.println("ARMY: Setting routine to scouting");
-            this.selector = new ScoutEnemy(info);
-        }
-        else if (info.pcb.buildOrderComplete && info.ecb.buildTypes.contains(UnitType.Terran_Command_Center)){
-            System.out.println("ARMY: Setting routing to Zergling Rush");
-            this.selector = new ZerglingRush(info, 6);
-        }
-        else{
-            // Just wait
-            System.out.println("ARMY: Army idling");
-            this.selector = new ManageDrones(info);
-        }*/
         this.state = RoutineState.Running;
     }
 

@@ -63,7 +63,7 @@ public class Repeat extends Routine {
                 succeed();
                 return;
             }
-            if(times > 0 || times <= -1){
+            if(times != 0){
                 System.out.println("Have not repeated enough, or infinitely repeating");
                 times--;
                 routine.reset();

@@ -31,8 +31,21 @@ public class TerranStrat extends Routine {
             fail();
         }
         selector.addRoutine(new NinePool(info, new Sequencer()));
-        selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost));
-        selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
+        selector.addRoutine(new MidgameBuilds(info));
+        int drones = 0;
+        for(Unit unit : self.getUnits()){
+            UnitType unitType = unit.getType();
+            if(unitType.isWorker()) {
+                drones++;
+            }
+        }
+        if(self.supplyTotal() - self.supplyUsed() < 4){
+            selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, false));
+        }
+        if(drones < 14){
+            selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, false));
+        }
+        selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
         selector.act(info);
         if(selector.isFailure() || selector.isSuccess()){
             reset();
