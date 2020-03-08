@@ -6,6 +6,7 @@ import java.util.LinkedList;
 
 public class ManageDrones extends Routine {
     Player self;
+    int droneCnt;
     int mineral;
     int gas;
     int extractors;
@@ -13,6 +14,7 @@ public class ManageDrones extends Routine {
 
     public ManageDrones(ChalkBoard info){
         this.self = info.pcb.self;
+        droneCnt = 0;
         mineral = 0;
         gas = 0;
         extractorList = new LinkedList<Unit>();
@@ -24,6 +26,9 @@ public class ManageDrones extends Routine {
 
     public void act(ChalkBoard info) {
         for(Unit unit: self.getUnits()){
+            if (unit.getType() == UnitType.Zerg_Drone) {
+                droneCnt++;
+            }
             if(unit.isGatheringMinerals()){
                 mineral++;
             }
@@ -31,11 +36,16 @@ public class ManageDrones extends Routine {
                 gas++;
             }
             if(unit.getType() == UnitType.Zerg_Extractor){
+                if(unit.getRemainingBuildTime() > 0){
+                    continue;
+                }
                 extractors++;
                 extractorList.add(unit);
             }
         }
-        if(gas < extractors * 2){
+        // Don't need to manage drones if they are all accounted for
+        if(gas + mineral == droneCnt){ fail(); }
+        if(gas < extractors * 3){
             for(Unit unit: self.getUnits()){
                 if(unit.getType().isWorker()){
                     // TODO: Make the worker find the nearest extractor from the list
@@ -51,6 +61,7 @@ public class ManageDrones extends Routine {
                         succeed();
                         return;
                     }
+                    else{ fail(); }
                 }
             }
         }// If we don't need to be gathering more gas, just gather minerals
@@ -69,8 +80,10 @@ public class ManageDrones extends Routine {
                     }
                     // Gather the closest
                     unit.gather(closestMineral);
+                    succeed();
                     return;
                 }
+                else{ fail(); }
             }
         }
     }

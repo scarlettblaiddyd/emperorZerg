@@ -44,10 +44,9 @@ public class BaseRepeat extends Routine {
         if (selector.isRunning()) {
             if (!game.isInGame()) {
                 fail();
+                return;
             }
-            else{
-                selector.act(info);
-            }
+            selector.act(info);
         }
         else if (selector.isSuccess()){
             succeed();

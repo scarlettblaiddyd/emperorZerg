@@ -32,6 +32,7 @@ public class ResearchUpgrade extends Routine {
         }
         else{
             if(self.gas() < upgrade.gasPrice() || self.minerals() < upgrade.mineralPrice()){
+                fail();
                 //System.out.println("BASE: Not enough gas or minerals. Required gas: " + upgrade.gasPrice() + ", required minerals: " + upgrade.mineralPrice());
                 return;
             }

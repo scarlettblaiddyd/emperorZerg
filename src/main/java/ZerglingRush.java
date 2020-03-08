@@ -47,5 +47,8 @@ public class ZerglingRush extends Routine {
             }
             succeed();
         }
+        else{
+            fail();
+        }
     }
 }

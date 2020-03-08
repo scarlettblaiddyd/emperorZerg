@@ -7,7 +7,7 @@ public class ArmyRepeat extends Routine {
     private final Game game;
     private final Player self;
     private final enemyChalkBoard enemy;
-    private Routine routine;
+    private Selector selector;
 
     public ArmyRepeat(ChalkBoard info) {
         super();
@@ -18,51 +18,64 @@ public class ArmyRepeat extends Routine {
 
     public void start(ChalkBoard info){
         System.out.println("ARMY: Starting new routine in ArmyRepeat");
+        if(selector == null){
+            selector = new Selector();
+            System.out.println("AMRY: Creating new selector for army repeater");
+        }
+        selector.addRoutine(new ScoutEnemy(info));
+        selector.addRoutine(new ArmyIdle(100));
+        selector.addRoutine(new ManageDrones(info));
+        selector.addRoutine(new ZerglingRush(info, 6));
+        /*
         if(!info.pcb.buildOrderComplete && !info.ecb.buildTypes.contains(UnitType.Terran_Command_Center)){
             System.out.println("ARMY: Setting routine to scouting");
-            this.routine = new ScoutEnemy(info);
+            this.selector = new ScoutEnemy(info);
         }
         else if (info.pcb.buildOrderComplete && info.ecb.buildTypes.contains(UnitType.Terran_Command_Center)){
             System.out.println("ARMY: Setting routing to Zergling Rush");
-            this.routine = new ZerglingRush(info, 6);
+            this.selector = new ZerglingRush(info, 6);
         }
         else{
             // Just wait
             System.out.println("ARMY: Army idling");
-            this.routine = new ManageDrones(info);
-        }
+            this.selector = new ManageDrones(info);
+        }*/
         this.state = RoutineState.Running;
     }
 
     public void reset() {
         System.out.println("ARMY: Resetting army repeat");
-        this.routine = null;
+        this.selector = null;
         this.state = null;
         super.start();
     }
 
     @Override
     public void act(ChalkBoard info) {
-        if(routine == null){
+        if(selector == null){
             this.start(info);
-            routine.start();
+            selector.start();
             return;
         }
-        if (routine.isRunning()) {
+        if (selector.isRunning()) {
             if (!game.isInGame()) {
                 fail();
                 return;
             }
-            routine.act(info);
+            selector.act(info);
         }
-        else if(routine.isSuccess()){
+        else if(selector.isSuccess()){
             succeed();
+            System.out.println("ARMY: Army repeater has succeeded");
+            this.reset();
         }
-        else if(routine.isFailure()){
+        else if(selector.isFailure()){
             fail();
+            System.out.println("ARMY: Army repeater has failed");
+            this.reset();
         }
         else{
-            routine.start();
+            selector.start();
         }
     }
 }

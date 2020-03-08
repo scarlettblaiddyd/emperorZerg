@@ -32,8 +32,9 @@ public class TerranStrat extends Routine {
         }
         selector.addRoutine(new NinePool(info, new Sequencer()));
         selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost));
+        selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3));
         selector.act(info);
-        if(selector.isFailure()){
+        if(selector.isFailure() || selector.isSuccess()){
             reset();
         }
         //game.drawTextScreen(10, 70, selector.routineQueue.toString());

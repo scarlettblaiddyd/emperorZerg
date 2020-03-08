@@ -13,7 +13,8 @@ public class ArmyIdle extends Routine {
     public void act(ChalkBoard info) {
         waittime--;
         if (waittime < 0){
-            succeed();
+            System.out.println("ARMY: Waiting period over");
+            fail();
         }
     }
 }

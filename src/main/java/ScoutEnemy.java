@@ -37,6 +37,11 @@ public class ScoutEnemy extends Routine {
     }
 
     public void act(ChalkBoard info) {
+        // First, make sure we don't already have the enemies base location
+        if(enemy.basePos.size() > 0){
+            fail();
+            return;
+        }
         if(this.startLocations.contains(self.getStartLocation())){
             System.out.println("ARMY: Removing our start location from the list of possible locations");
             if( this.startLocations.remove(self.getStartLocation()) ){
