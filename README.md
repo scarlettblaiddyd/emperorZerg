@@ -4,7 +4,7 @@
 
 ### High-Level Strategy:
 
-Our bot's current high level strategy employs a classic early-game "build order" known as 9 Pool. This build order focuses on getting early Zerglings and sending them to harass and slow the enemies build progress. It even has the potential to overwhelm the enemy and end the game early, but even if it fails to do so, it will hopefully slow their own strategy enough to give us an edge in the mid game.
+Our bot's current high level strategy employs a classic early-game "build order" known as 9 Pool. This build order focuses on getting early Zerglings and sending them to harass and slow the enemies build progress. It even has the potential to overwhelm the enemy and end the game early, but even if it fails to do so, it will hopefully slow their own strategy enough to give us an edge in the mid game. Ramping up into the mid game, we start building new structures and researching new upgrades, as Zerglings are not as powerful in the mid game.
 
 This strategy is implemented via a behavior tree mechanism. We chose a behavior tree because of its modularity. This modularity allows us to not only re-use entire behaviors when desired, but also to easily replace or modify entire behaviors. For example, if we wished to use a different build order in the early game, we need only change the contents of a single branch in our tree.
 
@@ -22,6 +22,8 @@ The higherarchy looks something like this:
         - MorphUnit
         - ScoutEnemy
     - ProtossStrat
+
+  We use two trees, each with their own base Repeat routine and unique sub-routines. They alternate operation to avoid race conditions, such as both of them issuing a different command to the same unit on the same frame in the game.
 
 ## Installation
 
