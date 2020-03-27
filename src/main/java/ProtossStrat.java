@@ -11,7 +11,10 @@ public class ProtossStrat extends Routine {
         super.start();
     }
 
-    public void reset() { }
+    public void reset() {
+        selector = new Selector();
+        start();
+    }
 
     public ProtossStrat(ChalkBoard info, Selector selector){
         super();

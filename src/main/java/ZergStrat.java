@@ -11,7 +11,10 @@ public class ZergStrat extends Routine {
         super.start();
     }
 
-    public void reset() { }
+    public void reset() {
+        selector = new Selector();
+        start();
+    }
 
     public ZergStrat(ChalkBoard info, Selector selector){
         super();

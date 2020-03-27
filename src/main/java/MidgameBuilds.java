@@ -16,6 +16,7 @@ public class MidgameBuilds extends Routine{
         super.start();
         System.out.println("Starting midgame builds routine");
         this.selector = new Selector();
+        this.selector.addRoutine(new BaseIdle(50));
         this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost,1));
         if(!info.pcb.buildTypes.contains(UnitType.Zerg_Lair)) {
             this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Lair, 1));

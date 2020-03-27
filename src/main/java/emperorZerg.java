@@ -27,24 +27,42 @@ class ChalkBoard {
     playerChalkBoard pcb;
 }
 
+enum Playstyle {
+    OFFENSIVE, DEFENSIVE;
+}
+
+enum UnitClass{
+    enemyCombatant,
+    playerCombatant,
+    enemyBuilding,
+    playerBuilding,
+    enemyWorker,
+    unimportant
+}
+
 class playerChalkBoard{
     Player self;
     LinkedList<Unit> army;
+    LinkedList<UnitType> armyTypes;
     LinkedList<Unit> buildings;
     LinkedList<UnitType> buildTypes;
     LinkedList<UnitType> morphingUnits;
     Boolean buildOrderComplete;
     Unit scout;
     Hashtable<UpgradeType, Integer> upgrades;
+    Playstyle playstyle;
+    int strength;
 }
 
 class enemyChalkBoard{
     Player self;
     Race race;
     LinkedList<Unit> army;
+    LinkedList<UnitType> armyTypes;
     LinkedList<Unit> buildings;
     LinkedList<UnitType> buildTypes;
     LinkedList<Position> basePos;
+    int strength;
 }
 
 
@@ -121,11 +139,14 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb.buildOrderComplete = false;
         info.pcb.scout = null;
         info.pcb.army = new LinkedList<Unit>();
+        info.pcb.armyTypes = new LinkedList<UnitType>();
         // A dictionary to tell us which upgrades we have researched
         info.pcb.upgrades = new Hashtable<UpgradeType, Integer>();
         info.pcb.upgrades.put(UpgradeType.Metabolic_Boost, 0);
         info.pcb.buildings = new LinkedList<Unit>();
         info.pcb.buildTypes = new LinkedList<UnitType>();
+        info.pcb.playstyle = Playstyle.OFFENSIVE;
+        info.pcb.strength = 0;
 
 
         MapRegions = game.getAllRegions();
@@ -139,7 +160,9 @@ public class emperorZerg extends DefaultBWListener {
         enemy.buildings = new LinkedList<Unit>();
         enemy.buildTypes = new LinkedList<UnitType>();
         enemy.army = new LinkedList<Unit>();
+        enemy.armyTypes = new LinkedList<UnitType>();
         enemy.basePos = new LinkedList<Position>();
+        enemy.strength = 0;
         //newScoutPath();
 
         buildRepeater = new Repeat(new BaseRepeat(info));
@@ -154,9 +177,52 @@ public class emperorZerg extends DefaultBWListener {
         }
     }
 
+    public void compareStrength(ChalkBoard info){
+        int selfStrength = 0;
+        int enemyStrength = 0;
+        for(UnitType unit : info.pcb.armyTypes){
+            selfStrength += unit.mineralPrice();
+        }
+
+        for(UnitType unit: info.ecb.armyTypes){
+            enemyStrength += unit.mineralPrice();
+        }
+
+        if(info.pcb.playstyle == Playstyle.OFFENSIVE && enemyStrength >= selfStrength + 250){
+            info.pcb.playstyle = Playstyle.DEFENSIVE;
+            System.out.println("META: Switching to defensive playstyle");
+        }
+        else if(info.pcb.playstyle == Playstyle.DEFENSIVE && selfStrength >= enemyStrength + 250){
+            info.pcb.playstyle = Playstyle.OFFENSIVE;
+            System.out.println("META: Switching to offensive playstyle");
+        }
+        info.pcb.strength = selfStrength;
+        info.ecb.strength = enemyStrength;
+    }
+
+    public UnitClass identifyUnit(Unit unit){
+        if(unit.getType().isBuilding()){
+            if(unit.getPlayer() == self)
+                return UnitClass.playerBuilding;
+            else if(self.isEnemy(unit.getPlayer()) )
+                return UnitClass.enemyBuilding;
+            else
+                return UnitClass.unimportant;
+        }
+        else{
+            if(self.isEnemy(unit.getPlayer()) && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)){
+                if(unit.getType().isWorker())
+                    return UnitClass.enemyWorker;
+                else
+                    return UnitClass.enemyCombatant;
+            }
+            return UnitClass.unimportant;
+        }
+    }
+
     @Override
     public void onFrame() {
-
+        compareStrength(info);
         info.pcb.buildings = new LinkedList<Unit>();
         info.pcb.buildTypes = new LinkedList<UnitType>();
         for(Unit unit: self.getUnits()){
@@ -185,9 +251,13 @@ public class emperorZerg extends DefaultBWListener {
         // General info for keeping track of AI behavior
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
-        game.drawTextScreen(10, 40, "Army: " + info.pcb.army);
+        game.drawTextScreen(10, 40, "Army: " + info.pcb.armyTypes);
         game.drawTextScreen(10, 50, "Buildings: " + info.pcb.buildings);
         game.drawTextScreen(10, 60, "Building types: " + info.pcb.buildTypes);
+        game.drawTextScreen(10, 70, "Enemy army: " + info.ecb.armyTypes);
+        game.drawTextScreen(10, 80, "Total player army mineral cost: " + info.pcb.strength);
+        game.drawTextScreen(10, 90, "Total enemy army mineral cost: " + info.ecb.strength);
+
         //game.drawTextScreen(10, 60,"Enemy units: " + enemy.buildings);
         int cnt = 0;
         for(Unit unit : self.getUnits()){
@@ -310,9 +380,12 @@ public class emperorZerg extends DefaultBWListener {
             enemy.buildings.add(unit);
             enemy.buildTypes.add(unit.getType());
         }
-        if(self.isEnemy(unit.getPlayer()) && !enemy.army.contains(unit) && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
-            System.out.println("Enemy unit discovered: " + unit.getType());
+        else if( self.isEnemy(unit.getPlayer()) && !(enemy.army.contains(unit))  && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
+            if(unit.getType().isWorker())
+                return;
+            System.out.println("Enemy unit discovered: " + unit.getType() + unit.getType().isWorker());
             enemy.army.add(unit);
+            enemy.armyTypes.add(unit.getType());
         }
     }
 
@@ -342,6 +415,12 @@ public class emperorZerg extends DefaultBWListener {
     public void onUnitDestroy(Unit unit){
         if(info.pcb.army.contains(unit)){
             info.pcb.army.remove(unit);
+        }
+        if(info.ecb.army.contains(unit)){
+            info.ecb.army.remove(unit);
+        }
+        if(info.ecb.armyTypes.contains(unit.getType())){
+            info.ecb.armyTypes.remove(unit.getType());
         }
     }
 

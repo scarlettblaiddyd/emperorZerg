@@ -42,6 +42,7 @@ public class ZerglingRush extends Routine {
             for(Unit zergling: self.getUnits()){
                 if(zergling.getType() == UnitType.Zerg_Zergling && !info.pcb.army.contains(zergling)) {
                     info.pcb.army.add(zergling);
+                    info.pcb.armyTypes.add(zergling.getType());
                     zergling.attack(target);
                 }
             }

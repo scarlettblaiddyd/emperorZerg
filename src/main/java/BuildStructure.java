@@ -33,7 +33,7 @@ public class BuildStructure extends Routine {
     public void act(ChalkBoard info) {
         for(Unit unit: self.getUnits()){
             if(unit.getType() == structure && unit.getRemainingBuildTime() > 0){
-                //succeed();
+                succeed();
                 //info.pcb.buildings.add(unit);
                 //info.pcb.buildTypes.add(unit.getType());
                 return;
@@ -59,7 +59,7 @@ public class BuildStructure extends Routine {
                 structureTile = game.getBuildLocation(structure, self.getStartLocation());
             }
             if(morpher.build(structure, structureTile)){
-                succeed();
+                //succeed();
             }
         }
     }

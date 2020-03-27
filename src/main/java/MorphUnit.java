@@ -47,6 +47,9 @@ public class MorphUnit extends Routine {
             }
             return;
         }
+        else if(type == UnitType.Zerg_Overlord && info.pcb.morphingUnits.contains(UnitType.Zerg_Overlord)){
+            fail();
+        }
         for (Unit trainer : info.pcb.self.getUnits()) {
             UnitType unitType = trainer.getType();
             if (unitType == UnitType.Zerg_Larva && !unitType.buildsWhat().isEmpty() && !trainer.isMorphing() && !trainer.canCancelMorph()) {

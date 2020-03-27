@@ -64,7 +64,7 @@ public class ScoutEnemy extends Routine {
                 }
             }
         }
-        if(enemy.buildTypes.contains(UnitType.Terran_Command_Center) && moveTo != null){
+        if((enemy.buildTypes.contains(UnitType.Terran_Command_Center) || enemy.buildTypes.contains(UnitType.Protoss_Nexus) || enemy.buildTypes.contains(UnitType.Zerg_Hatchery) ) && moveTo != null){
             System.out.println("ARMY: Found enemy base at: " + moveTo.toString());
             enemy.basePos.add(moveTo);
             scout.move(self.getStartLocation().toPosition());
