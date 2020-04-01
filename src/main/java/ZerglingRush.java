@@ -28,24 +28,22 @@ public class ZerglingRush extends Routine {
 
     public void act(ChalkBoard info) {
         if(enemy.basePos.peek() != null && target == null){
-            System.out.println("ARMY: Enemy base located, prepping attack");
+            System.out.println("ARMY: Enemy base located, trying to prep Zergling Rush");
             target = enemy.basePos.getFirst();
         }
         int zerglings = 0;
-        for(Unit unit: self.getUnits()){
-            if(unit.getType() == UnitType.Zerg_Zergling && !info.pcb.army.contains(unit)){
+        for(Unit unit: info.pcb.army){
+            if(unit.getType() == UnitType.Zerg_Zergling && unit.getDistance(self.getStartLocation().toPosition()) < 400){
                 zerglings++;
             }
         }
         if(zerglings >= num){
-            System.out.println("ARMY: Zerglings ready, rushing enemy base");
-            for(Unit zergling: self.getUnits()){
-                if(zergling.getType() == UnitType.Zerg_Zergling && !info.pcb.army.contains(zergling)) {
-                    info.pcb.army.add(zergling);
-                    info.pcb.armyTypes.add(zergling.getType());
+            for(Unit zergling: info.pcb.army){
+                if(zergling.getType() == UnitType.Zerg_Zergling && zergling.isIdle() && zergling.getDistance(self.getStartLocation().toPosition()) < 400) {
                     zergling.attack(target);
                 }
             }
+            System.out.println("ARMY: Zerglings ready, rushing enemy base");
             succeed();
         }
         else{

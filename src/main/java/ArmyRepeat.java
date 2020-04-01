@@ -24,8 +24,9 @@ public class ArmyRepeat extends Routine {
         }
         selector.addRoutine(new ScoutEnemy(info));
         selector.addRoutine(new ArmyIdle(100));
-        selector.addRoutine(new ManageDrones(info));
-        selector.addRoutine(new ZerglingRush(info, 6));
+        if(info.pcb.playstyle == Playstyle.OFFENSIVE){
+            selector.addRoutine(new OffensiveArmy(info));
+        }
         this.state = RoutineState.Running;
     }
 

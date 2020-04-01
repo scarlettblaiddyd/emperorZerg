@@ -45,7 +45,7 @@ public class Selector extends Routine {
 
             // check if the routine is successful and finish the sequence
             if (currentRoutine.isSuccess()) {
-                System.out.println("Selector: " + currentRoutine.toString() + "is success");
+                //System.out.println("Selector: " + currentRoutine.toString() + "is success");
                 succeed();
                 return;
             }
@@ -54,17 +54,17 @@ public class Selector extends Routine {
             // then the state is the last routine's state. (Success for OR was already handled)
             if (routineQueue.peek() == null) {
                 this.state = currentRoutine.getState();
-                System.out.println("SELECTOR: No more routines, final routine = " +currentRoutine.toString());
+                //System.out.println("SELECTOR: No more routines, final routine = " +currentRoutine.toString());
             }
             else {
                 currentRoutine = routineQueue.poll();
-                System.out.println("SELECTOR: polled: " + currentRoutine.toString());
+                //System.out.println("SELECTOR: polled: " + currentRoutine.toString());
                 currentRoutine.start();
             }
         }
         else {
             start();
-            System.out.println("SELECTOR: Starting routine: " + currentRoutine.toString());
+            //System.out.println("SELECTOR: Starting routine: " + currentRoutine.toString());
         }
 
     }

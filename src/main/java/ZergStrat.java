@@ -30,6 +30,7 @@ public class ZergStrat extends Routine {
             fail();
         }
         selector.addRoutine(new NinePool(info, new Sequencer()));
+        selector.addRoutine(new ManageDrones(info));
         selector.addRoutine(new MidgameBuilds(info));
         int drones = 0;
         for(Unit unit : self.getUnits()){
@@ -38,10 +39,10 @@ public class ZergStrat extends Routine {
                 drones++;
             }
         }
-        if(self.supplyTotal() - self.supplyUsed() < 4){
+        if(self.supplyTotal() - self.supplyUsed() < 2){
             selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, false));
         }
-        if(drones < 14){
+        if((drones < 14 && self.supplyTotal() >= 50) || (drones < 9 && self.supplyTotal() >= 34)){
             selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, false));
         }
         selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));

@@ -57,14 +57,14 @@ public class Repeat extends Routine {
             fail();
         }
         else if(routine.isSuccess()){
-            System.out.println("Repetition completed");
+            //System.out.println("Repetition completed");
             if(times == 0){
-                System.out.println("Repeated the specified number of times, succeeding");
+                //System.out.println("Repeated the specified number of times, succeeding");
                 succeed();
                 return;
             }
             if(times != 0){
-                System.out.println("Have not repeated enough, or infinitely repeating");
+                //System.out.println("Have not repeated enough, or infinitely repeating");
                 times--;
                 routine.reset();
                 routine.start();

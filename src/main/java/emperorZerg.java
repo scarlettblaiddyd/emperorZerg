@@ -35,8 +35,10 @@ enum UnitClass{
     enemyCombatant,
     playerCombatant,
     enemyBuilding,
+    enemyBase,
     playerBuilding,
     enemyWorker,
+    playerWorker,
     unimportant
 }
 
@@ -201,17 +203,31 @@ public class emperorZerg extends DefaultBWListener {
     }
 
     public UnitClass identifyUnit(Unit unit){
-        if(unit.getType().isBuilding()){
+        UnitType type = unit.getType();
+        if(type.isBuilding()){
             if(unit.getPlayer() == self)
                 return UnitClass.playerBuilding;
-            else if(self.isEnemy(unit.getPlayer()) )
+            else if(self.isEnemy(unit.getPlayer()) ) {
+                if(type ==UnitType.Terran_Command_Center ||
+                type == UnitType.Zerg_Hatchery ||
+                type == UnitType.Protoss_Nexus)
+                    return UnitClass.enemyBase;
                 return UnitClass.enemyBuilding;
+            }
             else
                 return UnitClass.unimportant;
         }
         else{
+            if(unit.getPlayer() == self) {
+                if(type.isWorker())
+                    return UnitClass.playerWorker;
+                else if(type == UnitType.Zerg_Zergling || type == UnitType.Zerg_Hydralisk)
+                    return UnitClass.playerCombatant;
+                else
+                    return UnitClass.unimportant;
+            }
             if(self.isEnemy(unit.getPlayer()) && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)){
-                if(unit.getType().isWorker())
+                if(type.isWorker())
                     return UnitClass.enemyWorker;
                 else
                     return UnitClass.enemyCombatant;
@@ -252,11 +268,10 @@ public class emperorZerg extends DefaultBWListener {
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
         game.drawTextScreen(10, 40, "Army: " + info.pcb.armyTypes);
-        game.drawTextScreen(10, 50, "Buildings: " + info.pcb.buildings);
-        game.drawTextScreen(10, 60, "Building types: " + info.pcb.buildTypes);
-        game.drawTextScreen(10, 70, "Enemy army: " + info.ecb.armyTypes);
-        game.drawTextScreen(10, 80, "Total player army mineral cost: " + info.pcb.strength);
-        game.drawTextScreen(10, 90, "Total enemy army mineral cost: " + info.ecb.strength);
+        game.drawTextScreen(10, 50, "Building types: " + info.pcb.buildTypes);
+        game.drawTextScreen(10, 60, "Enemy army: " + info.ecb.armyTypes);
+        game.drawTextScreen(10, 70, "Total player army mineral cost: " + info.pcb.strength);
+        game.drawTextScreen(10, 80, "Total enemy army mineral cost: " + info.ecb.strength);
 
         //game.drawTextScreen(10, 60,"Enemy units: " + enemy.buildings);
         int cnt = 0;
@@ -266,7 +281,7 @@ public class emperorZerg extends DefaultBWListener {
                 cnt++;
             }
         }
-        game.drawTextScreen(10, 100,"Drones: " + cnt);
+        game.drawTextScreen(10, 90,"Drones: " + cnt);
 
 
 
@@ -375,17 +390,23 @@ public class emperorZerg extends DefaultBWListener {
 
     /*****************When we discover an enemy unit***********************************************/
     public void onUnitDiscover(Unit unit){
-        if(unit.getType().isBuilding() && self.isEnemy(unit.getPlayer()) && !enemy.buildings.contains(unit)) {
+        UnitClass uClass = identifyUnit(unit);
+        //if(unit.getType().isBuilding() && self.isEnemy(unit.getPlayer()) && !enemy.buildings.contains(unit)) {
+        if(uClass == UnitClass.enemyBuilding || uClass == UnitClass.enemyBase){
             System.out.println("Discovered building of type: " + unit.getType());
             enemy.buildings.add(unit);
             enemy.buildTypes.add(unit.getType());
         }
-        else if( self.isEnemy(unit.getPlayer()) && !(enemy.army.contains(unit))  && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
-            if(unit.getType().isWorker())
-                return;
-            System.out.println("Enemy unit discovered: " + unit.getType() + unit.getType().isWorker());
-            enemy.army.add(unit);
-            enemy.armyTypes.add(unit.getType());
+        else if (uClass == UnitClass.enemyCombatant){
+        //else if( self.isEnemy(unit.getPlayer()) && !(enemy.army.contains(unit))  && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
+            if(!enemy.army.contains(unit)) {
+                System.out.println("Enemy combat discovered: " + unit.getType());
+                enemy.army.add(unit);
+                enemy.armyTypes.add(unit.getType());
+            }
+        }
+        else if (uClass == UnitClass.enemyWorker){
+            // Do nothing?
         }
     }
 
@@ -410,16 +431,19 @@ public class emperorZerg extends DefaultBWListener {
         if (morphingUnits.contains(UnitType.None)) {
             morphingUnits.remove(UnitType.None);
         }
+        if(identifyUnit(unit) == UnitClass.playerCombatant){
+            info.pcb.army.add(unit);
+            info.pcb.armyTypes.add(unit.getType());
+        }
     }
 
     public void onUnitDestroy(Unit unit){
         if(info.pcb.army.contains(unit)){
             info.pcb.army.remove(unit);
+            info.pcb.armyTypes.remove(unit.getType());
         }
-        if(info.ecb.army.contains(unit)){
+        else if(info.ecb.army.contains(unit)){
             info.ecb.army.remove(unit);
-        }
-        if(info.ecb.armyTypes.contains(unit.getType())){
             info.ecb.armyTypes.remove(unit.getType());
         }
     }
