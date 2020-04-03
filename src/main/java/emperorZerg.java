@@ -238,7 +238,11 @@ public class emperorZerg extends DefaultBWListener {
 
     @Override
     public void onFrame() {
-        compareStrength(info);
+        /* COMPARING STRENGTH // SIMULATION START */
+        AssSimulator simulator = new AssSimulator(info);
+        simulator.act(info);
+        /* COMPARING STRENGTH // SIMULATION END */
+
         info.pcb.buildings = new LinkedList<Unit>();
         info.pcb.buildTypes = new LinkedList<UnitType>();
         for(Unit unit: self.getUnits()){

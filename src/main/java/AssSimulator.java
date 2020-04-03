@@ -33,12 +33,12 @@ public class AssSimulator extends  Routine {
 
         simulator.simulate(240); // Simulate 24 seconds
 
-        if (simulator.getAgentsA().isEmpty()) {
-            // You lost the battle!
+        if (simulator.getAgentsA().isEmpty()) { // means you lost since you don't have any units
+            info.pcb.playstyle = Playstyle.DEFENSIVE;
             fail();
         }
         else {
-            // Huzzah! You won the battle!
+            info.pcb.playstyle = Playstyle.OFFENSIVE;
             succeed();
         }
     }
