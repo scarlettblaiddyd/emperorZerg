@@ -241,6 +241,7 @@ public class emperorZerg extends DefaultBWListener {
         /* COMPARING STRENGTH // SIMULATION START */
         AssSimulator simulator = new AssSimulator(info);
         simulator.act(info);
+        game.drawTextScreen(10, 200,"Behavior: " + info.pcb.playstyle);
         /* COMPARING STRENGTH // SIMULATION END */
 
         info.pcb.buildings = new LinkedList<Unit>();
