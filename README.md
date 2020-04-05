@@ -25,6 +25,9 @@ The higherarchy looks something like this:
 
   We use two trees, each with their own base Repeat routine and unique sub-routines. They alternate operation to avoid race conditions, such as both of them issuing a different command to the same unit on the same frame in the game.
 
+In orer to determine whether emporerZerg is in a favorable or disfavorable position for fighting, we have implemented the Agent Starcraft Simulator's 'simulator' functionality. It basically runs a simulation of a fight using our current army against the opponents currently known army from emporerZerg's scouted knowledge / real time knowledge.
+https://github.com/JavaBWAPI/ass
+
 ## Installation
 
 After ensuring that you have all the dependencies listed below, clone this repository, and run the command from within it:
