@@ -23,9 +23,12 @@ public class ArmyRepeat extends Routine {
             System.out.println("AMRY: Creating new selector for army repeater");
         }
         selector.addRoutine(new ScoutEnemy(info));
-        selector.addRoutine(new ArmyIdle(100));
+        selector.addRoutine(new ArmyIdle(30));
         if(info.pcb.playstyle == Playstyle.OFFENSIVE){
             selector.addRoutine(new OffensiveArmy(info));
+        }
+        else if(info.pcb.playstyle == Playstyle.DEFENSIVE){
+            selector.addRoutine(new DefensiveArmy(info));
         }
         this.state = RoutineState.Running;
     }

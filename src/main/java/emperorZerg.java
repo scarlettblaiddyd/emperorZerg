@@ -238,12 +238,6 @@ public class emperorZerg extends DefaultBWListener {
 
     @Override
     public void onFrame() {
-        /* COMPARING STRENGTH // SIMULATION START */
-        AssSimulator simulator = new AssSimulator(info);
-        simulator.act(info);
-        game.drawTextScreen(10, 200,"Behavior: " + info.pcb.playstyle);
-        /* COMPARING STRENGTH // SIMULATION END */
-
         info.pcb.buildings = new LinkedList<Unit>();
         info.pcb.buildTypes = new LinkedList<UnitType>();
         for(Unit unit: self.getUnits()){
@@ -277,6 +271,7 @@ public class emperorZerg extends DefaultBWListener {
         game.drawTextScreen(10, 60, "Enemy army: " + info.ecb.armyTypes);
         game.drawTextScreen(10, 70, "Total player army mineral cost: " + info.pcb.strength);
         game.drawTextScreen(10, 80, "Total enemy army mineral cost: " + info.ecb.strength);
+        game.drawTextScreen(10, 200,"Behavior: " + info.pcb.playstyle);
 
         //game.drawTextScreen(10, 60,"Enemy units: " + enemy.buildings);
         int cnt = 0;
@@ -413,6 +408,19 @@ public class emperorZerg extends DefaultBWListener {
         else if (uClass == UnitClass.enemyWorker){
             // Do nothing?
         }
+        /* COMPARING STRENGTH // SIMULATION START */
+        AssSimulator simulator = null;
+        for(Unit enemy: info.ecb.army){
+            if(enemy.isVisible(info.pcb.self)){
+                System.out.println("ARMY: Enemy visible, running combat simulation");
+                simulator = new AssSimulator(info);
+                break;
+            }
+        }
+        if(simulator != null)
+            simulator.act(info);
+        /* COMPARING STRENGTH // SIMULATION END */
+
     }
 
     public void onUnitComplete(Unit unit) {
@@ -451,6 +459,19 @@ public class emperorZerg extends DefaultBWListener {
             info.ecb.army.remove(unit);
             info.ecb.armyTypes.remove(unit.getType());
         }
+        /* COMPARING STRENGTH // SIMULATION START */
+        AssSimulator simulator = null;
+        for(Unit enemy: info.ecb.army){
+            if(enemy.isVisible(info.pcb.self)){
+                System.out.println("ARMY: Enemy visible, running combat simulation");
+                simulator = new AssSimulator(info);
+                break;
+            }
+        }
+        if(simulator != null)
+            simulator.act(info);
+        /* COMPARING STRENGTH // SIMULATION END */
+
     }
 
     public int minDistance(int dist[], boolean visited[]){

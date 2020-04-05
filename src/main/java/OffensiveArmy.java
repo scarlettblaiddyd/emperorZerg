@@ -18,8 +18,8 @@ public class OffensiveArmy extends Routine {
         this.selector = new Selector();
         for(Unit unit: info.ecb.army){
             if(unit.isVisible(info.pcb.self)){
-                selector.addRoutine(new RunSimulation(info));
                 System.out.println("ARMY: Enemy visible, running combat simulation");
+                selector.addRoutine(new AssSimulator(info));
                 break;
             }
         }

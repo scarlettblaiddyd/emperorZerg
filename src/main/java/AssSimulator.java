@@ -1,6 +1,4 @@
-import bwapi.Game;
-import bwapi.Player;
-import bwapi.UnitType;
+import bwapi.*;
 import org.bk.ass.sim.BWMirrorAgentFactory;
 import org.bk.ass.sim.Simulator;
 
@@ -24,22 +22,39 @@ public class AssSimulator extends  Routine {
         Simulator simulator = new Simulator.Builder().build();
 
         // put the armies into the simulator
-        for (UnitType unit : info.pcb.armyTypes) {
-            simulator.addAgentA(factory.of(unit));
+        // Find the enemy to check distance against
+        Position fightCenter = null;
+        for(Unit unit: info.ecb.army){
+            if(unit.isVisible(info.pcb.self)){
+                fightCenter = unit.getPosition();
+                break;
+            }
         }
-        for (UnitType unit : info.ecb.armyTypes) {
-            simulator.addAgentB(factory.of(unit));
+        if (fightCenter == null){
+            System.out.println("ARMY: No visible enemies to simulate");
+            fail();
+            return;
         }
+        for (Unit unit : info.ecb.army) {
+            if(unit.getDistance(fightCenter) <= 600)
+                simulator.addAgentB(factory.of(unit.getType()));
+        }
+        for (Unit unit : info.pcb.army) {
+            if(unit.getDistance(fightCenter) <= 600)
+                simulator.addAgentA(factory.of(unit.getType()));
+        }
+
 
         simulator.simulate(240); // Simulate 24 seconds
 
-        if (simulator.getAgentsA().isEmpty()) { // means you lost since you don't have any units
+        if (simulator.getAgentsA().size() < simulator.getAgentsB().size()) { // means you lost since you don't have any units
+            System.out.println("ARMY: Simulation LOSS, going on the defensive");
             info.pcb.playstyle = Playstyle.DEFENSIVE;
-            fail();
         }
         else {
+            System.out.println("ARMY: Simulation VICTORY, going on the offensive");
             info.pcb.playstyle = Playstyle.OFFENSIVE;
-            succeed();
         }
+        succeed();
     }
 }
