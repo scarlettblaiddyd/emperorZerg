@@ -28,7 +28,7 @@ public class GatherArmy extends Routine {
         Unit rally = null;
         for(Unit unit: info.pcb.army){
             if(!unit.isIdle()){
-                if(unit.isAttacking() || unit.isUnderAttack() || unit.isMoving()){
+                if(unit.isAttacking() || unit.isUnderAttack()){
                     rally = unit;
                     break;
                 }

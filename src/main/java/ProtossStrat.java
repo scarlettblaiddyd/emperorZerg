@@ -6,33 +6,12 @@ public class ProtossStrat extends Routine {
     private final enemyChalkBoard enemy;
     private Selector selector;
 
-    @Override
-    public void start(){
-        super.start();
-    }
-
-    public void reset() {
-        selector = new Selector();
-        start();
-    }
-
-    public ProtossStrat(ChalkBoard info, Selector selector){
-        super();
-        this.game = info.game;
-        this.self = info.pcb.self;
-        this.enemy = info.ecb;
-        this.selector = selector;
-    }
-
-
-    public void act(ChalkBoard info) {
-        if (enemy.race != Race.Protoss) {
-            System.out.println("VS PROTOSS FAIL");
-            fail();
+    public void start(ChalkBoard info){
+        if(selector == null){
+            selector = new Selector();
         }
+        this.selector.addRoutine(new BaseIdle(50));
         selector.addRoutine(new NinePool(info, new Sequencer()));
-        selector.addRoutine(new ManageDrones(info));
-        selector.addRoutine(new MidgameBuilds(info));
         int drones = 0;
         for(Unit unit : self.getUnits()){
             UnitType unitType = unit.getType();
@@ -40,16 +19,104 @@ public class ProtossStrat extends Routine {
                 drones++;
             }
         }
-        if(self.supplyTotal() - self.supplyUsed() < 2){
-            selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, false));
+
+
+        if(info.pcb.larva >= 1) {
+            if(self.supplyTotal() - self.supplyUsed() < 2){
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, false));
+            }
+            if((drones < 14 && self.supplyTotal() >= 50) || (drones < 9 && self.supplyTotal() >= 34)){
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, false));
+            }
+            // What unit to build?
+            int zerglings = 0;
+            int hydralisks = 0;
+            int lurkers = 0;
+            for (UnitType unit : info.pcb.armyTypes) {
+                if (unit == UnitType.Zerg_Zergling)
+                    zerglings++;
+                else if (unit == UnitType.Zerg_Hydralisk)
+                    hydralisks++;
+                else if (unit == UnitType.Zerg_Lurker)
+                    lurkers++;
+            }
+
+
+            if (zerglings < 8) {
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
+            } else if (zerglings > hydralisks * 2 && info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)) {
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Hydralisk, 1, false));
+            } else if (hydralisks > lurkers * 2 && info.pcb.tech.contains(TechType.Lurker_Aspect)) {
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Lurker, UnitType.Zerg_Hydralisk, 1, false));
+            }
         }
-        if((drones < 14 && self.supplyTotal() >= 50) || (drones < 9 && self.supplyTotal() >= 34)){
-            selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, false));
+
+        if(info.pcb.playstyle == Playstyle.DEFENSIVE){
+            int spores = 0;
+            int sunken = 0;
+            for(UnitType builds: info.pcb.buildTypes){
+                if(builds == UnitType.Zerg_Sunken_Colony){
+                    sunken++;
+                }
+                else if(builds == UnitType.Zerg_Spore_Colony){
+                    spores++;
+                }
+            }
+            if(sunken < 3) {
+                if (!info.pcb.buildTypes.contains(UnitType.Zerg_Creep_Colony)) {
+                    System.out.println("BASE: On the defensive, constructing creep colony");
+                    this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true));
+                } else {
+                    System.out.println("BASE: Turning creep colony into Sunken Colony");
+                    this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1));
+                }
+            }
         }
-        selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
-        selector.act(info);
-        if(selector.isFailure() || selector.isSuccess()){
-            reset();
+        selector.addRoutine(new MidgameBuilds(info));
+
+        this.state = RoutineState.Running;
+    }
+
+    public void reset() {
+        selector = null;
+        this.state = null;
+        start();
+    }
+
+    public ProtossStrat(ChalkBoard info){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+        this.selector = null;
+    }
+
+
+    public void act(ChalkBoard info) {
+        if(selector == null){
+            this.start(info);
+            selector.start();
+            return;
+        }
+        if (selector.isRunning()) {
+            if (!game.isInGame()) {
+                fail();
+                return;
+            }
+            selector.act(info);
+        }
+        else if(selector.isSuccess()){
+            succeed();
+            System.out.println("ARMY: Army repeater has succeeded");
+            this.reset();
+        }
+        else if(selector.isFailure()){
+            fail();
+            System.out.println("ARMY: Army repeater has failed");
+            this.reset();
+        }
+        else{
+            selector.start();
         }
     }
 }

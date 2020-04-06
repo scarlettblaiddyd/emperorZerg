@@ -33,13 +33,13 @@ public class ZerglingRush extends Routine {
         }
         int zerglings = 0;
         for(Unit unit: info.pcb.army){
-            if(unit.getType() == UnitType.Zerg_Zergling && unit.getDistance(self.getStartLocation().toPosition()) < 400){
+            if(unit.getType() == UnitType.Zerg_Zergling && unit.isIdle()){
                 zerglings++;
             }
         }
         if(zerglings >= num){
             for(Unit zergling: info.pcb.army){
-                if(zergling.getType() == UnitType.Zerg_Zergling && zergling.isIdle() && zergling.getDistance(self.getStartLocation().toPosition()) < 400) {
+                if(zergling.getType() == UnitType.Zerg_Zergling && zergling.isIdle()) {
                     zergling.attack(target);
                 }
             }

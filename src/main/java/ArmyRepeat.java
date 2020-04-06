@@ -22,6 +22,7 @@ public class ArmyRepeat extends Routine {
             selector = new Selector();
             System.out.println("AMRY: Creating new selector for army repeater");
         }
+        selector.addRoutine(new ManageDrones(info));
         selector.addRoutine(new ScoutEnemy(info));
         selector.addRoutine(new ArmyIdle(30));
         if(info.pcb.playstyle == Playstyle.OFFENSIVE){

@@ -47,7 +47,7 @@ public class ManageDrones extends Routine {
         if(gas + mineral == droneCnt){ fail(); }
         if(gas < extractors * 3){
             for(Unit unit: self.getUnits()){
-                if(unit.getType().isWorker()){
+                if(unit.getType().isWorker() && !unit.isCarrying()){
                     // TODO: Make the worker find the nearest extractor from the list
                     if(unit.isIdle()){
                         System.out.println("BASE: Sending idle worker to extractor");
@@ -67,7 +67,7 @@ public class ManageDrones extends Routine {
         }// If we don't need to be gathering more gas, just gather minerals
         else{
             for(Unit unit: self.getUnits()) {
-                if (unit.getType().isWorker() && unit.isIdle()) {
+                if (unit.getType().isWorker() && unit.isIdle() && !unit.isCarrying()) {
                     // Find the closest mineral to it
                     Unit closestMineral = null;
                     int closestDistance = Integer.MAX_VALUE;

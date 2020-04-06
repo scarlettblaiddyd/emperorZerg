@@ -52,8 +52,10 @@ class playerChalkBoard{
     Boolean buildOrderComplete;
     Unit scout;
     Hashtable<UpgradeType, Integer> upgrades;
+    LinkedList<TechType> tech;
     Playstyle playstyle;
     int strength;
+    int larva;
 }
 
 class enemyChalkBoard{
@@ -147,8 +149,10 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb.upgrades.put(UpgradeType.Metabolic_Boost, 0);
         info.pcb.buildings = new LinkedList<Unit>();
         info.pcb.buildTypes = new LinkedList<UnitType>();
+        info.pcb.tech = new LinkedList<TechType>();
         info.pcb.playstyle = Playstyle.OFFENSIVE;
         info.pcb.strength = 0;
+        info.pcb.larva = 0;
 
 
         MapRegions = game.getAllRegions();
@@ -240,10 +244,14 @@ public class emperorZerg extends DefaultBWListener {
     public void onFrame() {
         info.pcb.buildings = new LinkedList<Unit>();
         info.pcb.buildTypes = new LinkedList<UnitType>();
+        info.pcb.larva = 0;
         for(Unit unit: self.getUnits()){
             if(unit.getType().isBuilding() && unit.getType() != UnitType.Zerg_Larva){
                 info.pcb.buildings.add(unit);
                 info.pcb.buildTypes.add(unit.getType());
+            }
+            else if(unit.getType() == UnitType.Zerg_Larva){
+                info.pcb.larva++;
             }
         }
 

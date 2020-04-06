@@ -22,7 +22,7 @@ public class BaseRepeat extends Routine {
             System.out.println("BASE: Creating new selector for base repeater");
         }
         selector.addRoutine(new ZergStrat(info, new Selector()));
-        selector.addRoutine(new ProtossStrat(info, new Selector()));
+        selector.addRoutine(new ProtossStrat(info));
         selector.addRoutine(new TerranStrat(info, new Selector()));
         this.state = RoutineState.Running;
     }

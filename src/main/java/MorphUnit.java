@@ -9,6 +9,7 @@ public class MorphUnit extends Routine {
     private final Player self;
     private final enemyChalkBoard enemy;
     private final UnitType type;
+    private final UnitType source;
     private int num;
     private boolean wait;
 
@@ -29,8 +30,19 @@ public class MorphUnit extends Routine {
         this.type = type;
         this.num = num;
         this.wait = wait;
+        this.source = UnitType.Zerg_Larva;
     }
 
+    public MorphUnit(ChalkBoard info, UnitType type, UnitType source, int num, boolean wait){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+        this.type = type;
+        this.num = num;
+        this.wait = wait;
+        this.source = source;
+    }
 
     @Override
     public void act(ChalkBoard info){
@@ -53,13 +65,15 @@ public class MorphUnit extends Routine {
         }
         for (Unit trainer : info.pcb.self.getUnits()) {
             UnitType unitType = trainer.getType();
-            if (unitType == UnitType.Zerg_Larva && !unitType.buildsWhat().isEmpty() && !trainer.isMorphing() && !trainer.canCancelMorph()) {
+            if (unitType == source && !unitType.buildsWhat().isEmpty() && !trainer.isMorphing() && !trainer.canCancelMorph()) {
                 if (trainer.canMorph()) {
                     //System.out.println("BASE: Found a unit to morph into " + type + ", " + trainer);
                     if(!trainer.morph(type)){
                         continue;
                     }
                     num -=1;
+                    if(info.pcb.armyTypes.contains(type))
+                        info.pcb.armyTypes.remove(type);
                     System.out.println("BASE: Morphing new unit: " + type.toString()  +", number left: " + num);
                     if(num <= 0) {
                         succeed();

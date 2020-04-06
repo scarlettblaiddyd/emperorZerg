@@ -1,3 +1,4 @@
+import bwapi.TechType;
 import bwapi.Unit;
 import bwapi.UnitType;
 import bwapi.UpgradeType;
@@ -14,13 +15,10 @@ public class MidgameBuilds extends Routine{
 
     public void start(){
         super.start();
-        System.out.println("Starting midgame builds routine");
+        System.out.println("BASE: Starting midgame builds routine");
         this.selector = new Selector();
-        this.selector.addRoutine(new BaseIdle(50));
         this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost,1));
-        if(!info.pcb.buildTypes.contains(UnitType.Zerg_Lair)) {
-            this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Lair, 1));
-        }
+
         int hatches = 0;
         for(Unit unit: info.pcb.self.getUnits()){
             if(unit.getType() == UnitType.Zerg_Hatchery || unit.getType() == UnitType.Zerg_Lair){
@@ -30,6 +28,20 @@ public class MidgameBuilds extends Routine{
         if(hatches < 2) {
             this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Hatchery, false));
         }
+
+        if(!info.pcb.buildTypes.contains(UnitType.Zerg_Lair)) {
+            System.out.println("BASE: Morphing a new lair");
+            this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Lair, 1));
+        }
+        else if (!info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)){
+            System.out.println("BASE: Morphing a new hydralist den");
+            this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Hydralisk_Den, true));
+        }
+        else{
+            this.selector.addRoutine(new ResearchTech(info, TechType.Lurker_Aspect));
+        }
+
+
         this.state = RoutineState.Running;
         selector.start();
     }

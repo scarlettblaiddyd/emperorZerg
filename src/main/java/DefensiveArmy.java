@@ -3,6 +3,8 @@ import bwapi.Player;
 import bwapi.Unit;
 import bwapi.UnitType;
 
+import java.lang.reflect.ParameterizedType;
+
 public class DefensiveArmy extends Routine {
     private final ChalkBoard info;
     private Selector selector;
@@ -13,11 +15,21 @@ public class DefensiveArmy extends Routine {
         this.state = null;
     }
 
-    public void start(){
+    public void start(ChalkBoard info){
         super.start();
         this.selector = new Selector();
 
         selector.addRoutine(new ArmyRetreat(info));
+
+        boolean idle = false;
+        for(Unit unit: info.pcb.army){
+            if(unit.isIdle()) {
+                idle = true;
+                break;
+            }
+        }
+        if(idle)
+            selector.addRoutine(new PatrolBase(info));
 
         selector.addRoutine(new GatherArmy(info));
 
@@ -33,7 +45,7 @@ public class DefensiveArmy extends Routine {
     public void act(ChalkBoard info) {
         // Check if any enemy units are visible (which would indicate that we are engaged in combat)
         if (selector == null){
-            this.start();
+            this.start(info);
             return;
         }
         if(selector.isRunning()){
