@@ -32,7 +32,9 @@ public class DefensiveArmy extends Routine {
         if(idle)
             selector.addRoutine(new PatrolBase(info));
         */
-        selector.addRoutine(new LurkerDefensive(info));
+        if(info.pcb.armyTypes.contains(UnitType.Zerg_Lurker)) {
+            selector.addRoutine(new LurkerDefensive(info));
+        }
         selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Zergling));
         selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Hydralisk));
         //selector.addRoutine(new GatherArmy(info));

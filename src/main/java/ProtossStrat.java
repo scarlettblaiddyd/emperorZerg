@@ -36,7 +36,7 @@ public class ProtossStrat extends Routine {
             }
 
             if(self.supplyTotal() - self.supplyUsed() < 2){
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, false));
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, true));
             }
             if((drones < 14 && self.supplyTotal() >= 80) || (drones < 12 && self.supplyTotal() >= 50) || (drones < 9 && self.supplyTotal() >= 34)){
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, false));
@@ -44,11 +44,11 @@ public class ProtossStrat extends Routine {
 
 
             if (zerglings < 8) {
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, true));
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
             } else if (zerglings > hydralisks * 2 && info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)) {
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Hydralisk, 1, true));
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Hydralisk, 1, false));
             } else if (hydralisks > lurkers * 2 && info.pcb.tech.contains(TechType.Lurker_Aspect)) {
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Lurker, UnitType.Zerg_Hydralisk, 1, true));
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Lurker, UnitType.Zerg_Hydralisk, 1, false));
             }
         }
 

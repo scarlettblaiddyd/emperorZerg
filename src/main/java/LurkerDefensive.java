@@ -20,9 +20,13 @@ public class LurkerDefensive extends Routine {
     }
 
     public void start(ChalkBoard info){
+        System.out.println(info.pcb.buildings);
+        System.out.println(info.pcb.buildTypes);
         for(Unit colony: info.pcb.buildings){
-            if(colony.getType() == UnitType.Zerg_Sunken_Colony)
+            if(colony.getType() == UnitType.Zerg_Sunken_Colony) {
+                System.out.println("ARMY: Colony found for lurkers to defend");
                 sunken = colony;
+            }
         }
     }
 
