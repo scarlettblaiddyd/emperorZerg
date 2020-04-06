@@ -59,6 +59,7 @@ public class BuildStructure extends Routine {
                 structureTile = game.getBuildLocation(structure, self.getStartLocation());
             }
             if(morpher.build(structure, structureTile)){
+                System.out.println("BASE: Building " + structure);
                 //succeed();
             }
         }

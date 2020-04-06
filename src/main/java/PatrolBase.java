@@ -1,7 +1,4 @@
-import bwapi.Game;
-import bwapi.Player;
-import bwapi.Position;
-import bwapi.Unit;
+import bwapi.*;
 import javafx.geometry.Pos;
 
 public class PatrolBase extends Routine {
@@ -46,7 +43,11 @@ public class PatrolBase extends Routine {
             start(info);
         boolean setpatrol = false;
         for(Unit unit: info.pcb.army){
-            if(unit.getDistance(self.getStartLocation().toPosition()) < 600 && unit.isIdle()){
+            if(unit.getDistance(target) < 200 && unit.isIdle() && unit.getType() == UnitType.Zerg_Zergling){
+                unit.attack(target1, false);
+                setpatrol = true;
+            }
+            else if(unit.getDistance(target1) < 200 && unit.isIdle() && unit.getType() == UnitType.Zerg_Zergling){
                 unit.attack(target, false);
                 setpatrol = true;
             }

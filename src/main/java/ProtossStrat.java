@@ -21,13 +21,7 @@ public class ProtossStrat extends Routine {
         }
 
 
-        if(info.pcb.larva >= 1) {
-            if(self.supplyTotal() - self.supplyUsed() < 2){
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, false));
-            }
-            if((drones < 14 && self.supplyTotal() >= 50) || (drones < 9 && self.supplyTotal() >= 34)){
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, false));
-            }
+        if(info.pcb.larva >= 2) {
             // What unit to build?
             int zerglings = 0;
             int hydralisks = 0;
@@ -41,17 +35,28 @@ public class ProtossStrat extends Routine {
                     lurkers++;
             }
 
+            if(self.supplyTotal() - self.supplyUsed() < 2){
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, false));
+            }
+            if((drones < 14 && self.supplyTotal() >= 80) || (drones < 12 && self.supplyTotal() >= 50) || (drones < 9 && self.supplyTotal() >= 34)){
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, false));
+            }
+
 
             if (zerglings < 8) {
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, true));
             } else if (zerglings > hydralisks * 2 && info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)) {
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Hydralisk, 1, false));
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Hydralisk, 1, true));
             } else if (hydralisks > lurkers * 2 && info.pcb.tech.contains(TechType.Lurker_Aspect)) {
-                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Lurker, UnitType.Zerg_Hydralisk, 1, false));
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Lurker, UnitType.Zerg_Hydralisk, 1, true));
             }
         }
 
+        selector.addRoutine(new MidgameBuilds(info));
+
         if(info.pcb.playstyle == Playstyle.DEFENSIVE){
+            System.out.println("BASE: Protoss Strategy defensive");
+            int creeps = 0;
             int spores = 0;
             int sunken = 0;
             for(UnitType builds: info.pcb.buildTypes){
@@ -61,18 +66,41 @@ public class ProtossStrat extends Routine {
                 else if(builds == UnitType.Zerg_Spore_Colony){
                     spores++;
                 }
-            }
-            if(sunken < 3) {
-                if (!info.pcb.buildTypes.contains(UnitType.Zerg_Creep_Colony)) {
-                    System.out.println("BASE: On the defensive, constructing creep colony");
-                    this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true));
-                } else {
-                    System.out.println("BASE: Turning creep colony into Sunken Colony");
-                    this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1));
+                else if(builds == UnitType.Zerg_Creep_Colony){
+                    creeps++;
                 }
             }
+            if(creeps + sunken + spores < 4){
+                System.out.println("BASE: On the defensive, constructing creep colony");
+                this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true));
+            }
+            if(sunken < 4) {
+                System.out.println("BASE: Turning creep colony into Sunken Colony");
+                this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1));
+            }
         }
-        selector.addRoutine(new MidgameBuilds(info));
+        else if (info.pcb.playstyle == Playstyle.OFFENSIVE) {
+            int creeps = 0;
+            int spores = 0;
+            int sunken = 0;
+            for(UnitType builds: info.pcb.buildTypes){
+                if(builds == UnitType.Zerg_Sunken_Colony){
+                    sunken++;
+                }
+                else if(builds == UnitType.Zerg_Spore_Colony){
+                    spores++;
+                }
+                else if(builds == UnitType.Zerg_Creep_Colony){
+                    creeps++;
+                }
+            }
+            if(creeps + sunken + spores < 2){
+                this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true));
+            }
+            if(sunken < 2) {
+                this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1));
+            }
+        }
 
         this.state = RoutineState.Running;
     }
@@ -107,12 +135,12 @@ public class ProtossStrat extends Routine {
         }
         else if(selector.isSuccess()){
             succeed();
-            System.out.println("ARMY: Army repeater has succeeded");
+            System.out.println("BASE: ProtossStrat: Success");
             this.reset();
         }
         else if(selector.isFailure()){
             fail();
-            System.out.println("ARMY: Army repeater has failed");
+            System.out.println("BASE: ProtossStrat: Failure");
             this.reset();
         }
         else{

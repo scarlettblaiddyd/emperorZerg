@@ -194,11 +194,11 @@ public class emperorZerg extends DefaultBWListener {
             enemyStrength += unit.mineralPrice();
         }
 
-        if(info.pcb.playstyle == Playstyle.OFFENSIVE && enemyStrength >= selfStrength + 250){
+        if(info.pcb.playstyle == Playstyle.OFFENSIVE && enemyStrength >= selfStrength + 500){
             info.pcb.playstyle = Playstyle.DEFENSIVE;
             System.out.println("META: Switching to defensive playstyle");
         }
-        else if(info.pcb.playstyle == Playstyle.DEFENSIVE && selfStrength >= enemyStrength + 250){
+        else if(info.pcb.playstyle == Playstyle.DEFENSIVE && selfStrength >= enemyStrength + 500){
             info.pcb.playstyle = Playstyle.OFFENSIVE;
             System.out.println("META: Switching to offensive playstyle");
         }
@@ -225,7 +225,7 @@ public class emperorZerg extends DefaultBWListener {
             if(unit.getPlayer() == self) {
                 if(type.isWorker())
                     return UnitClass.playerWorker;
-                else if(type == UnitType.Zerg_Zergling || type == UnitType.Zerg_Hydralisk)
+                else if(type == UnitType.Zerg_Zergling || type == UnitType.Zerg_Hydralisk || type == UnitType.Zerg_Lurker)
                     return UnitClass.playerCombatant;
                 else
                     return UnitClass.unimportant;
@@ -242,9 +242,16 @@ public class emperorZerg extends DefaultBWListener {
 
     @Override
     public void onFrame() {
+        // Temporary fix to make us go back on the offensive without a scout
+        //compareStrength(info);
         info.pcb.buildings = new LinkedList<Unit>();
         info.pcb.buildTypes = new LinkedList<UnitType>();
+        info.pcb.armyTypes = new LinkedList<UnitType>();
+        info.pcb.army = new LinkedList<Unit>();
         info.pcb.larva = 0;
+        int zerglings = 0;
+        int hydralisks = 0;
+        int lurkers = 0;
         for(Unit unit: self.getUnits()){
             if(unit.getType().isBuilding() && unit.getType() != UnitType.Zerg_Larva){
                 info.pcb.buildings.add(unit);
@@ -252,6 +259,16 @@ public class emperorZerg extends DefaultBWListener {
             }
             else if(unit.getType() == UnitType.Zerg_Larva){
                 info.pcb.larva++;
+            }
+            else if(identifyUnit(unit) == UnitClass.playerCombatant){
+                if(unit.getType() == UnitType.Zerg_Zergling)
+                    zerglings++;
+                else if(unit.getType() == UnitType.Zerg_Hydralisk)
+                    hydralisks++;
+                else if(unit.getType() == UnitType.Zerg_Lurker)
+                    lurkers++;
+                info.pcb.army.add(unit);
+                info.pcb.armyTypes.add(unit.getType());
             }
         }
 
@@ -274,7 +291,8 @@ public class emperorZerg extends DefaultBWListener {
         // General info for keeping track of AI behavior
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
-        game.drawTextScreen(10, 40, "Army: " + info.pcb.armyTypes);
+        game.drawTextScreen(10 , 40, "Zerglings: " + zerglings +", Hydralisks: " + hydralisks + ", Lurkers: " + lurkers);
+        //game.drawTextScreen(10, 40, "Army: " + info.pcb.armyTypes);
         game.drawTextScreen(10, 50, "Building types: " + info.pcb.buildTypes);
         game.drawTextScreen(10, 60, "Enemy army: " + info.ecb.armyTypes);
         game.drawTextScreen(10, 70, "Total player army mineral cost: " + info.pcb.strength);
@@ -393,6 +411,9 @@ public class emperorZerg extends DefaultBWListener {
         if(unit.getPlayer() == self) {
             System.out.println("Unit morphing: " + unit.getType());
             morphingUnits.add(unit.getBuildType());
+            if(unit.getBuildType() == UnitType.Zerg_Zergling){
+                morphingUnits.add(unit.getBuildType());
+            }
         }
     }
 
@@ -453,15 +474,15 @@ public class emperorZerg extends DefaultBWListener {
             morphingUnits.remove(UnitType.None);
         }
         if(identifyUnit(unit) == UnitClass.playerCombatant){
-            info.pcb.army.add(unit);
-            info.pcb.armyTypes.add(unit.getType());
+            //info.pcb.army.add(unit);
+            //info.pcb.armyTypes.add(unit.getType());
         }
     }
 
     public void onUnitDestroy(Unit unit){
         if(info.pcb.army.contains(unit)){
-            info.pcb.army.remove(unit);
-            info.pcb.armyTypes.remove(unit.getType());
+            //info.pcb.army.remove(unit);
+            //info.pcb.armyTypes.remove(unit.getType());
         }
         else if(info.ecb.army.contains(unit)){
             info.ecb.army.remove(unit);

@@ -28,7 +28,7 @@ public class GatherArmy extends Routine {
         Unit rally = null;
         for(Unit unit: info.pcb.army){
             if(!unit.isIdle()){
-                if(unit.isAttacking() || unit.isUnderAttack()){
+                if(unit.isAttacking() || unit.isUnderAttack() || (unit.isMoving() && unit.getDistance(self.getStartLocation().toPosition()) > 500)){
                     rally = unit;
                     break;
                 }
@@ -36,7 +36,7 @@ public class GatherArmy extends Routine {
         }
         if(rally == null){
             fail();
-            System.out.println("ARMY: No units to rally army to");
+            System.out.println("ARMY: No units to gather army to");
             return;
         }
         target = rally.getPosition();

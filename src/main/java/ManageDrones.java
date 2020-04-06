@@ -45,7 +45,7 @@ public class ManageDrones extends Routine {
         }
         // Don't need to manage drones if they are all accounted for
         if(gas + mineral == droneCnt){ fail(); }
-        if(gas < extractors * 3){
+        if(gas < extractors * 2){
             for(Unit unit: self.getUnits()){
                 if(unit.getType().isWorker() && !unit.isCarrying()){
                     // TODO: Make the worker find the nearest extractor from the list

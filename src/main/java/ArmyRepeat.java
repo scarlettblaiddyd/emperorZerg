@@ -17,14 +17,14 @@ public class ArmyRepeat extends Routine {
     }
 
     public void start(ChalkBoard info){
-        System.out.println("ARMY: Starting new routine in ArmyRepeat");
+        //System.out.println("ARMY: Starting new routine in ArmyRepeat");
         if(selector == null){
             selector = new Selector();
-            System.out.println("AMRY: Creating new selector for army repeater");
+            //System.out.println("AMRY: Creating new selector for army repeater");
         }
         selector.addRoutine(new ManageDrones(info));
         selector.addRoutine(new ScoutEnemy(info));
-        selector.addRoutine(new ArmyIdle(30));
+        selector.addRoutine(new ArmyIdle(5));
         if(info.pcb.playstyle == Playstyle.OFFENSIVE){
             selector.addRoutine(new OffensiveArmy(info));
         }
@@ -57,12 +57,12 @@ public class ArmyRepeat extends Routine {
         }
         else if(selector.isSuccess()){
             succeed();
-            System.out.println("ARMY: Army repeater has succeeded");
+            //System.out.println("ARMY: Army repeater has succeeded");
             this.reset();
         }
         else if(selector.isFailure()){
             fail();
-            System.out.println("ARMY: Army repeater has failed");
+            //System.out.println("ARMY: Army repeater has failed");
             this.reset();
         }
         else{

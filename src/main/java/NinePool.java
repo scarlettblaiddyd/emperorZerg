@@ -35,7 +35,7 @@ public class NinePool extends Routine {
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, 1, true));
         sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Overlord, 1, true));
         if (info.ecb.race == Race.Protoss) {
-            sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3, true));
+            //sequencer.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 3, true));
             sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Hatchery, true));
         }
         else if (info.ecb.race == Race.Zerg) {

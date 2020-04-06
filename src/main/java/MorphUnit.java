@@ -72,8 +72,6 @@ public class MorphUnit extends Routine {
                         continue;
                     }
                     num -=1;
-                    if(info.pcb.armyTypes.contains(type))
-                        info.pcb.armyTypes.remove(type);
                     System.out.println("BASE: Morphing new unit: " + type.toString()  +", number left: " + num);
                     if(num <= 0) {
                         succeed();

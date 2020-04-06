@@ -34,7 +34,8 @@ public class OffensiveArmy extends Routine {
             selector.addRoutine(new ZerglingRush(info, idleZerglings));
             System.out.println("ARMY: Enough idle zerglings to justify a rush");
         }
-
+        selector.addRoutine(new LurkerOffensive(info));
+        selector.addRoutine(new AttackVisible(info));
         selector.addRoutine(new GatherArmy(info));
 
         this.state = RoutineState.Running;

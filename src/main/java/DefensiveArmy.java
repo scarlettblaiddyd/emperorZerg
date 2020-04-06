@@ -21,17 +21,21 @@ public class DefensiveArmy extends Routine {
 
         selector.addRoutine(new ArmyRetreat(info));
 
+        /*
         boolean idle = false;
         for(Unit unit: info.pcb.army){
-            if(unit.isIdle()) {
+            if(unit.isIdle() && unit.getType() == UnitType.Zerg_Zergling) {
                 idle = true;
                 break;
             }
         }
         if(idle)
             selector.addRoutine(new PatrolBase(info));
-
-        selector.addRoutine(new GatherArmy(info));
+        */
+        selector.addRoutine(new LurkerDefensive(info));
+        selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Zergling));
+        selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Hydralisk));
+        //selector.addRoutine(new GatherArmy(info));
 
         this.state = RoutineState.Running;
         selector.start();

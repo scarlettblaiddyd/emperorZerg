@@ -17,7 +17,6 @@ public class MidgameBuilds extends Routine{
         super.start();
         System.out.println("BASE: Starting midgame builds routine");
         this.selector = new Selector();
-        this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost,1));
 
         int hatches = 0;
         for(Unit unit: info.pcb.self.getUnits()){
@@ -38,7 +37,10 @@ public class MidgameBuilds extends Routine{
             this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Hydralisk_Den, true));
         }
         else{
+            this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost,1));
             this.selector.addRoutine(new ResearchTech(info, TechType.Lurker_Aspect));
+            this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Grooved_Spines, 1));
+            this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Muscular_Augments, 1));
         }
 
 
