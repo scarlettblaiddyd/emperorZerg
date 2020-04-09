@@ -8,6 +8,7 @@ public class LurkerDefensive extends Routine {
     private final Player self;
     private final enemyChalkBoard enemy;
     private Unit sunken;
+    private boolean ordered;
 
     public void reset() {
 
@@ -18,38 +19,64 @@ public class LurkerDefensive extends Routine {
         this.self = info.pcb.self;
         this.enemy = info.ecb;
         this.sunken = null;
+        ordered = false;
     }
 
     public void start(ChalkBoard info){
         start();
-        for(Unit colony: info.pcb.buildings){
-            if(colony.getType() == UnitType.Zerg_Sunken_Colony) {
-                System.out.println("ARMY: Colony found for lurkers to defend");
-                this.sunken = colony;
-            }
-        }
+        sunken = null;
+        ordered = false;
     }
 
     public void act(ChalkBoard info) {
-        if(this.sunken == null){
-            this.start(info);
-        }
-        if(sunken == null)
-        {
-            fail();
-            System.out.println("ARMY: No colony found for Lurker to defend");
-            return;
-        }
+        this.start(info);
+
         for(Unit lurker: info.pcb.army){
-            if(lurker.getType() == UnitType.Zerg_Lurker){
-                if(lurker.getDistance(sunken) < 30){
+            // Selectively order lurkers
+            if(lurker.getType() == UnitType.Zerg_Lurker && lurker.isIdle()){
+                // Search for a colony for the lurker to defend
+                for(Unit colony: info.pcb.buildings){
+                    if(colony.getType() == UnitType.Zerg_Sunken_Colony) {
+                        if(sunken == null){
+                            System.out.println("ARMY: Colony found for lurker to defend");
+                            this.sunken = colony;
+                        }
+                        else if (lurker.getDistance(colony) < lurker.getDistance(sunken)){
+                                System.out.println("ARMY: Closer colony found for lurker to defend");
+                                this.sunken = colony;
+                            }
+                        }
+                }
+                if(sunken == null){
+                    for(Unit building: info.pcb.buildings){
+                        System.out.println("ARMY: No colony found to fortify, lurkers instead defending nearest building");
+                        if(sunken == null)
+                            this.sunken = building;
+                        else if(lurker.getDistance(building) < lurker.getDistance(sunken))
+                            this.sunken = building;
+                    }
+                }
+
+                // If the lurker is close enough, burrow
+                if(lurker.getDistance(sunken) < 30 && !lurker.isBurrowed()){
                     lurker.burrow();
                     System.out.println("ARMY: Ordered Lurker to burrow near colony");
-                    succeed();
+                    ordered = true;
                 }
-                lurker.move(sunken.getPosition());
+                else if (lurker.isIdle() && lurker.getDistance(sunken) > 30){
+                    if(lurker.isBurrowed())
+                        lurker.unburrow();
+                    System.out.println("ARMY: Lurker not close enough to burrow, moving closer");
+                    lurker.move(sunken.getPosition());
+                    ordered = true;
+                }
             }
         }
-        fail();
+        if(ordered) {
+            System.out.println("SUCCESS");
+            succeed();
+        }
+        else
+            fail();
     }
 }

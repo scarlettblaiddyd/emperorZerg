@@ -287,7 +287,8 @@ public class emperorZerg extends DefaultBWListener {
             buildRepeater.act(info);
             skipFrame = true;
         }
-        /*
+
+/*
         if(testRepeater.getState() == null){
             testRepeater.start();
         }
@@ -301,7 +302,7 @@ public class emperorZerg extends DefaultBWListener {
         else{
             skipFrame = true;
         }
-        */
+*/
         // General info for keeping track of AI behavior
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
