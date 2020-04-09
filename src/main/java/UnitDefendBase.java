@@ -37,13 +37,15 @@ public class UnitDefendBase extends Routine {
             start(info);
         boolean sent = false;
         for(Unit unit: info.pcb.army) {
-            if(!unit.isAttacking() && unit.getType() == type){
+            if(!unit.isAttacking() && unit.getType() == type && unit.isIdle()){
                 unit.attack(target);
                 sent = true;
             }
         }
-        if(sent)
+        if(sent) {
+            System.out.println("Ordered " + type + " to defend.");
             succeed();
+        }
         else
             fail();
     }

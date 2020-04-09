@@ -10,6 +10,7 @@ public class MorphStructure extends Routine {
     private final enemyChalkBoard enemy;
     private final UnitType type;
     private int num;
+    private boolean wait;
 
     @Override
     public void start(){
@@ -27,6 +28,17 @@ public class MorphStructure extends Routine {
         this.enemy = info.ecb;
         this.type = type;
         this.num = num;
+        this.wait = false;
+    }
+
+    public MorphStructure(ChalkBoard info, UnitType type, int num, boolean wait){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+        this.type = type;
+        this.num = num;
+        this.wait = wait;
     }
 
 
@@ -34,7 +46,9 @@ public class MorphStructure extends Routine {
     public void act(ChalkBoard info){
         // CHECK FOR MINERALS
         if (info.pcb.self.minerals() < type.mineralPrice() || info.pcb.self.gas() < type.gasPrice()) {
-            fail();
+            if(!wait) {
+                fail();
+            }
             return;
         }
         for (Unit building : info.pcb.self.getUnits()) {

@@ -8,6 +8,7 @@ public class LurkerDefensive extends Routine {
     private final Player self;
     private final enemyChalkBoard enemy;
     private Unit sunken;
+
     public void reset() {
 
     }
@@ -20,19 +21,18 @@ public class LurkerDefensive extends Routine {
     }
 
     public void start(ChalkBoard info){
-        System.out.println(info.pcb.buildings);
-        System.out.println(info.pcb.buildTypes);
+        start();
         for(Unit colony: info.pcb.buildings){
             if(colony.getType() == UnitType.Zerg_Sunken_Colony) {
                 System.out.println("ARMY: Colony found for lurkers to defend");
-                sunken = colony;
+                this.sunken = colony;
             }
         }
     }
 
     public void act(ChalkBoard info) {
-        if(sunken == null){
-            start();
+        if(this.sunken == null){
+            this.start(info);
         }
         if(sunken == null)
         {
@@ -42,14 +42,12 @@ public class LurkerDefensive extends Routine {
         }
         for(Unit lurker: info.pcb.army){
             if(lurker.getType() == UnitType.Zerg_Lurker){
-                if(lurker.getDistance(sunken) < 100){
+                if(lurker.getDistance(sunken) < 30){
                     lurker.burrow();
                     System.out.println("ARMY: Ordered Lurker to burrow near colony");
                     succeed();
-                    return;
                 }
                 lurker.move(sunken.getPosition());
-                break;
             }
         }
         fail();

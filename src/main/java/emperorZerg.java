@@ -35,6 +35,7 @@ enum UnitClass{
     enemyCombatant,
     playerCombatant,
     enemyBuilding,
+    enemyCombatBuilding,
     enemyBase,
     playerBuilding,
     enemyWorker,
@@ -84,6 +85,9 @@ public class emperorZerg extends DefaultBWListener {
     Routine armyRepeater;
     boolean skipFrame = false;
     //LinkedList<UnitType> enemyBuildings     = new LinkedList<UnitType>();
+
+    // TESTING STUFF
+    Routine testRepeater;
 
     void newScoutPath(){
         // Get a list of all the starting positions on the map
@@ -174,13 +178,8 @@ public class emperorZerg extends DefaultBWListener {
         buildRepeater = new Repeat(new BaseRepeat(info));
         armyRepeater = new Repeat(new ArmyRepeat(info));
 
-        // Populate our list of buildings
-        for(Unit unit: self.getUnits()){
-            if(unit.getType().isBuilding() && unit.getType() != UnitType.Zerg_Larva){
-                //info.pcb.buildings.add(unit);
-                //info.pcb.buildTypes.add(unit.getType());
-            }
-        }
+        // TESTING STUFF
+        testRepeater = new Repeat(new TestRepeat(info));
     }
 
     public void compareStrength(ChalkBoard info){
@@ -216,6 +215,8 @@ public class emperorZerg extends DefaultBWListener {
                 type == UnitType.Zerg_Hatchery ||
                 type == UnitType.Protoss_Nexus)
                     return UnitClass.enemyBase;
+                if(type == UnitType.Protoss_Photon_Cannon)
+                    return UnitClass.enemyCombatBuilding;
                 return UnitClass.enemyBuilding;
             }
             else
@@ -286,8 +287,21 @@ public class emperorZerg extends DefaultBWListener {
             buildRepeater.act(info);
             skipFrame = true;
         }
-
-
+        /*
+        if(testRepeater.getState() == null){
+            testRepeater.start();
+        }
+        else if(skipFrame){
+            testRepeater.act(info);
+            skipFrame = false;
+            Routine manage = new ManageDrones(info);
+            manage.start();
+            manage.act(info);
+        }
+        else{
+            skipFrame = true;
+        }
+        */
         // General info for keeping track of AI behavior
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
@@ -426,7 +440,7 @@ public class emperorZerg extends DefaultBWListener {
             enemy.buildings.add(unit);
             enemy.buildTypes.add(unit.getType());
         }
-        else if (uClass == UnitClass.enemyCombatant){
+        else if (uClass == UnitClass.enemyCombatant || uClass == UnitClass.enemyCombatBuilding){
         //else if( self.isEnemy(unit.getPlayer()) && !(enemy.army.contains(unit))  && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
             if(!enemy.army.contains(unit)) {
                 System.out.println("Enemy combat discovered: " + unit.getType());

@@ -38,7 +38,7 @@ public class MidgameBuilds extends Routine{
         }
         else{
             this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost,1));
-            this.selector.addRoutine(new ResearchTech(info, TechType.Lurker_Aspect));
+            this.selector.addRoutine(new ResearchTech(info, TechType.Lurker_Aspect, false));
             this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Grooved_Spines, 1));
             this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Muscular_Augments, 1));
         }
