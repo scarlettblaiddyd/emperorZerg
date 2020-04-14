@@ -8,6 +8,7 @@ public class BuildStructure extends Routine {
     private Unit morpher = null;
     private TilePosition structureTile = null;
     private final boolean wait;
+    private final boolean expansion;
 
 
     @Override
@@ -28,8 +29,19 @@ public class BuildStructure extends Routine {
         this.enemy = info.ecb;
         this.structure = structure;
         this.wait = wait;
+        this.expansion = false;
     }
-    
+
+    public BuildStructure(ChalkBoard info, UnitType structure, boolean wait, boolean exp){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+        this.structure = structure;
+        this.wait = wait;
+        this.expansion = exp;
+    }
+
     public void act(ChalkBoard info) {
         for(Unit unit: self.getUnits()){
             if(unit.getType() == structure && unit.getRemainingBuildTime() > 0){
@@ -47,7 +59,13 @@ public class BuildStructure extends Routine {
         }
         if (morpher == null) {
             for (Unit unit : self.getUnits()) {
-                if (unit.getType().isWorker() && morpher == null && info.pcb.scout != unit && !unit.isCarrying() && unit.getDistance(self.getStartLocation().toPosition()) < 200) {
+                if (unit.getType().isWorker() && morpher == null && info.pcb.scout != unit && !unit.isCarrying()) {
+                    if(expansion){
+                        if(unit.getDistance(info.pcb.expansion) > 200)
+                            continue;
+                    }
+                    else if(unit.getDistance(self.getStartLocation().toPosition()) > 200)
+                        continue;
                     morpher = unit;
                     morpher.stop();
                     break;
@@ -56,7 +74,12 @@ public class BuildStructure extends Routine {
         }
         if (morpher != null) {
             if (structureTile == null) {
-                structureTile = game.getBuildLocation(structure, self.getStartLocation());
+                if(expansion){
+                    structureTile = game.getBuildLocation(structure, morpher.getTilePosition());
+                }
+                else {
+                    structureTile = game.getBuildLocation(structure, self.getStartLocation());
+                }
             }
             if(morpher.build(structure, structureTile)){
                 System.out.println("BASE: Building " + structure);

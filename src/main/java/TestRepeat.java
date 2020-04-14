@@ -18,12 +18,10 @@ public class TestRepeat extends Routine {
     }
 
     public void start(ChalkBoard info){
-        if(sequencer == null)
+        if(selector == null)
             selector = new Selector();
 
-        selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Hydralisk));
-        selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Zergling));
-        selector.addRoutine(new LurkerDefensive(info));
+        selector.addRoutine(new BuildExpansion(info));
         selector.start();
     }
 

@@ -51,6 +51,8 @@ class playerChalkBoard{
     LinkedList<UnitType> buildTypes;
     LinkedList<UnitType> morphingUnits;
     Boolean buildOrderComplete;
+    Boolean expansionSecured;
+    Position expansion;
     Unit scout;
     Hashtable<UpgradeType, Integer> upgrades;
     LinkedList<TechType> tech;
@@ -145,6 +147,8 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb = player;
         info.pcb.morphingUnits = morphingUnits;
         info.pcb.buildOrderComplete = false;
+        info.pcb.expansionSecured = false;
+        info.pcb.expansion = null;
         info.pcb.scout = null;
         info.pcb.army = new LinkedList<Unit>();
         info.pcb.armyTypes = new LinkedList<UnitType>();
@@ -272,6 +276,7 @@ public class emperorZerg extends DefaultBWListener {
                 info.pcb.armyTypes.add(unit.getType());
             }
         }
+
 
         if(buildRepeater.getState() == null){
             buildRepeater.start();

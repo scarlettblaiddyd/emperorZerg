@@ -80,6 +80,7 @@ public class ProtossStrat extends Routine {
             }
         }
         else if (info.pcb.playstyle == Playstyle.OFFENSIVE) {
+            System.out.println("BASE: Protoss strategy offensive");
             int creeps = 0;
             int spores = 0;
             int sunken = 0;
@@ -121,6 +122,11 @@ public class ProtossStrat extends Routine {
 
 
     public void act(ChalkBoard info) {
+        if (enemy.race != Race.Zerg) {
+            System.out.println("BASE: Not facing protoss");
+            fail();
+            return;
+        }
         if(selector == null){
             this.start(info);
             selector.start();
