@@ -54,11 +54,13 @@ class playerChalkBoard{
     Boolean expansionSecured;
     Position expansion;
     Unit scout;
+    Position scoutRally;
     Hashtable<UpgradeType, Integer> upgrades;
     LinkedList<TechType> tech;
     Playstyle playstyle;
     int strength;
     int larva;
+    int scoutCD;
 }
 
 class enemyChalkBoard{
@@ -150,6 +152,7 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb.expansionSecured = false;
         info.pcb.expansion = null;
         info.pcb.scout = null;
+        info.pcb.scoutRally = null;
         info.pcb.army = new LinkedList<Unit>();
         info.pcb.armyTypes = new LinkedList<UnitType>();
         // A dictionary to tell us which upgrades we have researched
@@ -161,6 +164,8 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb.playstyle = Playstyle.OFFENSIVE;
         info.pcb.strength = 0;
         info.pcb.larva = 0;
+        info.pcb.scoutCD = 0;
+        info.pcb.scoutRally = self.getStartLocation().toPosition();
 
 
         MapRegions = game.getAllRegions();
@@ -318,6 +323,11 @@ public class emperorZerg extends DefaultBWListener {
         game.drawTextScreen(10, 70, "Total player army mineral cost: " + info.pcb.strength);
         game.drawTextScreen(10, 80, "Total enemy army mineral cost: " + info.ecb.strength);
         game.drawTextScreen(10, 200,"Behavior: " + info.pcb.playstyle);
+
+
+        if(info.pcb.scout != null) {
+            game.drawTextMap(info.pcb.scoutRally, "SCOUT RALLY POSITION");
+        }
 
         //game.drawTextScreen(10, 60,"Enemy units: " + enemy.buildings);
         int cnt = 0;
@@ -500,6 +510,10 @@ public class emperorZerg extends DefaultBWListener {
     }
 
     public void onUnitDestroy(Unit unit){
+        if(unit == info.pcb.scout){
+            info.pcb.scout = null;
+            info.pcb.scoutCD = 35;
+        }
         if(info.pcb.army.contains(unit)){
             //info.pcb.army.remove(unit);
             //info.pcb.armyTypes.remove(unit.getType());

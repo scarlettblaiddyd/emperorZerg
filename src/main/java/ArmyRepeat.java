@@ -23,7 +23,15 @@ public class ArmyRepeat extends Routine {
             //System.out.println("ARMY: Creating new selector for army repeater");
         }
         selector.addRoutine(new ManageDrones(info));
-        selector.addRoutine(new ScoutEnemy(info));
+        if(info.pcb.scoutCD > 0){
+            info.pcb.scoutCD--;
+            System.out.println("ARMY: Scout CD: " + info.pcb.scoutCD);
+            if(info.pcb.scoutCD == 0)
+                System.out.println("ARMY: Long enough without enemy info, looking for new scout");
+        }
+        else {
+            selector.addRoutine(new ScoutEnemy(info));
+        }
         selector.addRoutine(new ArmyIdle(5));
         if(info.pcb.playstyle == Playstyle.OFFENSIVE){
             selector.addRoutine(new OffensiveArmy(info));
