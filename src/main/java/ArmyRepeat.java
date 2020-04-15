@@ -20,7 +20,7 @@ public class ArmyRepeat extends Routine {
         //System.out.println("ARMY: Starting new routine in ArmyRepeat");
         if(selector == null){
             selector = new Selector();
-            //System.out.println("AMRY: Creating new selector for army repeater");
+            //System.out.println("ARMY: Creating new selector for army repeater");
         }
         selector.addRoutine(new ManageDrones(info));
         selector.addRoutine(new ScoutEnemy(info));

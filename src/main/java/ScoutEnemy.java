@@ -37,11 +37,6 @@ public class ScoutEnemy extends Routine {
     }
 
     public void act(ChalkBoard info) {
-        // First, make sure we don't already have the enemies base location
-        if(enemy.basePos.size() > 0){
-            fail();
-            return;
-        }
         if(this.startLocations.contains(self.getStartLocation())){
             System.out.println("ARMY: Removing our start location from the list of possible locations");
             if( this.startLocations.remove(self.getStartLocation()) ){
@@ -51,7 +46,8 @@ public class ScoutEnemy extends Routine {
                 System.out.println("ARMY: Failed to remove");
             }
         }
-        if (scout == null){
+        // Check to see if scout was killed
+        if (scout == null || !scout.exists()){
             System.out.println("ARMY: Looking for a unit to turn into a scout");
             for(Unit unit : self.getUnits()){
                 UnitType unitType = unit.getType();
@@ -64,11 +60,22 @@ public class ScoutEnemy extends Routine {
                 }
             }
         }
+        // If we have the enemies base location, patrol it
+        if(enemy.basePos.size() > 0){
+            for(Unit u : game.getRegionAt(enemy.basePos.getFirst()).getUnits()){
+                if(u.getDistance(scout.getPosition()) <= 10){
+                    ScoutRetreat(info);
+                }
+            }
+            
+            //fail();
+            return;
+        }
         if((enemy.buildTypes.contains(UnitType.Terran_Command_Center) || enemy.buildTypes.contains(UnitType.Protoss_Nexus) || enemy.buildTypes.contains(UnitType.Zerg_Hatchery) ) && moveTo != null){
             System.out.println("ARMY: Found enemy base at: " + moveTo.toString());
             enemy.basePos.add(moveTo);
-            scout.move(self.getStartLocation().toPosition());
-            info.pcb.scout = null;
+            //scout.move(self.getStartLocation().toPosition());
+            //info.pcb.scout = null;
             succeed();
             return;
         }
