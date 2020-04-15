@@ -15,11 +15,11 @@ public class ScoutEnemy extends Routine {
 
     }
 
-    public void start(){
+    public void start() {
         super.start();
     }
 
-    public ScoutEnemy(ChalkBoard info){
+    public ScoutEnemy(ChalkBoard info) {
         super();
         this.game = info.game;
         this.self = info.pcb.self;
@@ -28,7 +28,7 @@ public class ScoutEnemy extends Routine {
         this.startLocations = new LinkedList<TilePosition>(game.getStartLocations());
     }
 
-    public ScoutEnemy(Game game, Player self, enemyChalkBoard enemy){
+    public ScoutEnemy(Game game, Player self, enemyChalkBoard enemy) {
         super();
         this.game = game;
         this.self = self;
@@ -37,21 +37,20 @@ public class ScoutEnemy extends Routine {
     }
 
     public void act(ChalkBoard info) {
-        if(this.startLocations.contains(self.getStartLocation())){
+        if (this.startLocations.contains(self.getStartLocation())) {
             System.out.println("ARMY: Removing our start location from the list of possible locations");
-            if( this.startLocations.remove(self.getStartLocation()) ){
+            if (this.startLocations.remove(self.getStartLocation())) {
                 System.out.println("ARMY: Successfully removed");
-            }
-            else{
+            } else {
                 System.out.println("ARMY: Failed to remove");
             }
         }
         // Check to see if scout was killed
-        if (scout == null || !scout.exists()){
+        if (scout == null || !scout.exists()) {
             System.out.println("ARMY: Looking for a unit to turn into a scout");
-            for(Unit unit : self.getUnits()){
+            for (Unit unit : self.getUnits()) {
                 UnitType unitType = unit.getType();
-                if(unitType.isWorker() && !unit.isCarryingMinerals() && !unit.isCarryingGas()){
+                if (unitType.isWorker() && !unit.isCarryingMinerals() && !unit.isCarryingGas()) {
                     System.out.println("ARMY: Found a unit to turn into scout");
                     scout = unit;
                     info.pcb.scout = unit;
@@ -61,10 +60,12 @@ public class ScoutEnemy extends Routine {
             }
         }
         // If we have the enemies base location, patrol it
-        if(enemy.basePos.size() > 0){
-            ScoutBase(info);
+        if (enemy.basePos.size() > 0) {
+            scoutBase(info);
+            succeed();
+            return;
         }
-        if((enemy.buildTypes.contains(UnitType.Terran_Command_Center) || enemy.buildTypes.contains(UnitType.Protoss_Nexus) || enemy.buildTypes.contains(UnitType.Zerg_Hatchery) ) && moveTo != null){
+        if ((enemy.buildTypes.contains(UnitType.Terran_Command_Center) || enemy.buildTypes.contains(UnitType.Protoss_Nexus) || enemy.buildTypes.contains(UnitType.Zerg_Hatchery)) && moveTo != null) {
             System.out.println("ARMY: Found enemy base at: " + moveTo.toString());
             enemy.basePos.add(moveTo);
             //scout.move(self.getStartLocation().toPosition());
@@ -72,9 +73,28 @@ public class ScoutEnemy extends Routine {
             succeed();
             return;
         }
-        if(scout != null && scout.isIdle()){
+        if (scout != null && scout.isIdle()) {
             moveTo = startLocations.poll().toPosition();
             scout.move(moveTo);
         }
+    }
+
+    private void scoutBase(ChalkBoard info) {
+        for (Unit u : game.getRegionAt(enemy.basePos.getFirst()).getUnits()) {
+            if (u.getType().isWorker() || u.getType().isBuilding()) {
+                continue;
+            } else if (u.getDistance(scout.getPosition()) <= 25) {
+                //closeEnemies.add(u);
+                scout.move(self.getStartLocation().toPosition());
+                succeed();
+                return;
+            }
+        }
+        /*if(!closeEnemies.isEmpty()){
+            succeed();
+            return;
+        }*/
+        scout.patrol(enemy.basePos.getFirst());
+        return;
     }
 }
