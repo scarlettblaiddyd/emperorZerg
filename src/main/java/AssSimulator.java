@@ -2,7 +2,7 @@ import bwapi.*;
 import org.bk.ass.sim.BWMirrorAgentFactory;
 import org.bk.ass.sim.Simulator;
 
-public class AssSimulator extends  Routine {
+public class AssSimulator extends Routine {
 
     private final Game game;
     private final Player self;

@@ -62,14 +62,7 @@ public class ScoutEnemy extends Routine {
         }
         // If we have the enemies base location, patrol it
         if(enemy.basePos.size() > 0){
-            for(Unit u : game.getRegionAt(enemy.basePos.getFirst()).getUnits()){
-                if(u.getDistance(scout.getPosition()) <= 10){
-                    ScoutRetreat(info);
-                }
-            }
-            
-            //fail();
-            return;
+            ScoutBase(info);
         }
         if((enemy.buildTypes.contains(UnitType.Terran_Command_Center) || enemy.buildTypes.contains(UnitType.Protoss_Nexus) || enemy.buildTypes.contains(UnitType.Zerg_Hatchery) ) && moveTo != null){
             System.out.println("ARMY: Found enemy base at: " + moveTo.toString());
