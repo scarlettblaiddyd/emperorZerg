@@ -21,11 +21,16 @@ public class TestRepeat extends Routine {
         if(selector == null)
             selector = new Selector();
 
-        selector.addRoutine(new BuildExpansion(info));
+        //selector.addRoutine(new BuildExpansion(info));
+        selector.addRoutine(new ScoutEnemy(info));
+        selector.addRoutine(new ManageDrones(info));
+        selector.addRoutine(new ManageDrones(info, true));
+        selector.addRoutine(new MidgameBuilds(info));
         selector.start();
     }
 
     public void act(ChalkBoard info) {
+        info.game.drawTextScreen(150, 150, "Acting");
         if(selector == null){
             this.start(info);
             return;

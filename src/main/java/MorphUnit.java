@@ -12,6 +12,7 @@ public class MorphUnit extends Routine {
     private final UnitType source;
     private int num;
     private boolean wait;
+    private boolean expansion;
 
     @Override
     public void start(){
@@ -31,6 +32,7 @@ public class MorphUnit extends Routine {
         this.num = num;
         this.wait = wait;
         this.source = UnitType.Zerg_Larva;
+        this.expansion = false;
     }
 
     public MorphUnit(ChalkBoard info, UnitType type, UnitType source, int num, boolean wait){
@@ -42,6 +44,19 @@ public class MorphUnit extends Routine {
         this.num = num;
         this.wait = wait;
         this.source = source;
+        this.expansion = false;
+    }
+
+    public MorphUnit(ChalkBoard info, UnitType type, UnitType source, int num, boolean wait, boolean expansion){
+        super();
+        this.game = info.game;
+        this.self = info.pcb.self;
+        this.enemy = info.ecb;
+        this.type = type;
+        this.num = num;
+        this.wait = wait;
+        this.source = source;
+        this.expansion = expansion;
     }
 
     @Override
@@ -66,6 +81,10 @@ public class MorphUnit extends Routine {
         for (Unit trainer : info.pcb.self.getUnits()) {
             UnitType unitType = trainer.getType();
             if (unitType == source && !unitType.buildsWhat().isEmpty() && !trainer.isMorphing() && !trainer.canCancelMorph()) {
+                if(expansion){
+                    if(trainer.getDistance(info.pcb.expansion) > 500)
+                        continue;
+                }
                 if (trainer.canMorph()) {
                     //System.out.println("BASE: Found a unit to morph into " + type + ", " + trainer);
                     if(!trainer.morph(type)){

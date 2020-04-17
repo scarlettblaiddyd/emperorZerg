@@ -13,6 +13,7 @@ public class BuildStructure extends Routine {
 
     @Override
     public void start(){
+        System.out.println("BASE: Potentially building a new " + structure + " wait? " + wait);
         super.start();
     }
 
@@ -61,10 +62,10 @@ public class BuildStructure extends Routine {
             for (Unit unit : self.getUnits()) {
                 if (unit.getType().isWorker() && morpher == null && info.pcb.scout != unit && !unit.isCarrying()) {
                     if(expansion){
-                        if(unit.getDistance(info.pcb.expansion) > 200)
+                        if(unit.getDistance(info.pcb.expansion) > 500)
                             continue;
                     }
-                    else if(unit.getDistance(self.getStartLocation().toPosition()) > 200)
+                    else if(unit.getDistance(self.getStartLocation().toPosition()) > 500)
                         continue;
                     morpher = unit;
                     morpher.stop();
@@ -86,5 +87,11 @@ public class BuildStructure extends Routine {
                 //succeed();
             }
         }
+        else{
+            if(!wait){
+                fail();
+            }
+        }
+
     }
 }

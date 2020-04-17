@@ -1,5 +1,3 @@
-import bwapi.Game;
-import bwapi.Player;
 import bwapi.Unit;
 import bwapi.UnitType;
 
@@ -25,18 +23,30 @@ public class OffensiveArmy extends Routine {
         }
         // Check if we have idle units?
         int idleZerglings = 0;
+        int idleHydralisks = 0;
         for(Unit unit: info.pcb.army){
             if(unit.getType() == UnitType.Zerg_Zergling && unit.isIdle()){
                 idleZerglings += 1;
             }
+            else if(unit.getType() == UnitType.Zerg_Hydralisk && unit.isIdle()){
+                idleHydralisks++;
+            }
         }
-        if(idleZerglings >= 8) {
+        if(idleZerglings >= 6) {
             selector.addRoutine(new ZerglingRush(info, idleZerglings));
             System.out.println("ARMY: Enough idle zerglings to justify a rush");
         }
+        else if(idleZerglings > 0) {
+            System.out.println("ARMY: Idle zerglings in army");
+            selector.addRoutine(new GenericUnitOffensive(info, UnitType.Zerg_Zergling));
+        }
+        if(idleHydralisks > 0) {
+            System.out.println("ARMY: Idle Hydralisks in army");
+            selector.addRoutine(new GenericUnitOffensive(info, UnitType.Zerg_Hydralisk));
+        }
         selector.addRoutine(new LurkerOffensive(info));
-        selector.addRoutine(new AttackVisible(info));
-        selector.addRoutine(new GatherArmy(info));
+        //selector.addRoutine(new AttackVisible(info));
+        //selector.addRoutine(new GatherArmy(info));
 
         this.state = RoutineState.Running;
         selector.start();

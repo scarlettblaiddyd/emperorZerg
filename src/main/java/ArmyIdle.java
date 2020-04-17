@@ -14,7 +14,7 @@ public class ArmyIdle extends Routine {
         waittime--;
         if (waittime < 0){
             System.out.println("ARMY: Waiting period over");
-            fail();
+            succeed();
         }
     }
 }

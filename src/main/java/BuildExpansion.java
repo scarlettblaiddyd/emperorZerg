@@ -9,6 +9,8 @@ public class BuildExpansion extends Routine {
 
     @Override
     public void start(){
+        // In this case, we assume we always want a gas expansion, so
+        // build an extractor
         sequencer.addRoutine(new FindExpansionLocation(info, true));
         sequencer.addRoutine(new BuildStructure(info, UnitType.Zerg_Hatchery, true, true));
         super.start();

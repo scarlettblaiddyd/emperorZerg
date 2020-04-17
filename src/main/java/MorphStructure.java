@@ -15,6 +15,7 @@ public class MorphStructure extends Routine {
     @Override
     public void start(){
         super.start();
+        System.out.println("BASE: Potentially morphing a new " + type + " waiting? " + wait);
     }
 
     public void reset(){
@@ -55,7 +56,7 @@ public class MorphStructure extends Routine {
             UnitType unitType = building.getType();
             if (unitType.isBuilding() && !unitType.buildsWhat().isEmpty() && !building.isMorphing() && !building.canCancelMorph()) {
                 if (building.canMorph()) {
-                    //System.out.println("BASE: Found a unit to morph into " + type + ", " + building);
+                    System.out.println("BASE: Found a unit to morph into " + type + ", " + building.getType());
                     if(!building.morph(type)){
                         continue;
                     }

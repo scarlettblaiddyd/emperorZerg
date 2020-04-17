@@ -3,7 +3,6 @@ import bwapi.DefaultBWListener;
 import bwapi.Game;
 import bwapi.Player;
 import bwapi.*;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.*;
 
@@ -55,6 +54,11 @@ class playerChalkBoard{
     Position expansion;
     Unit scout;
     Position scoutRally;
+    Region scoutDest;
+    Position scoutTarget;
+    LinkedList<Region> unexplored;
+    LinkedList<Region> expansionUnexplored;
+    Position battleField;
     Hashtable<UpgradeType, Integer> upgrades;
     LinkedList<TechType> tech;
     Playstyle playstyle;
@@ -70,6 +74,8 @@ class enemyChalkBoard{
     LinkedList<UnitType> armyTypes;
     LinkedList<Unit> buildings;
     LinkedList<UnitType> buildTypes;
+    Unit startBase;
+    Boolean destroyedBase;
     LinkedList<Position> basePos;
     int strength;
 }
@@ -166,6 +172,10 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb.larva = 0;
         info.pcb.scoutCD = 0;
         info.pcb.scoutRally = self.getStartLocation().toPosition();
+        info.pcb.scoutDest = null;
+        info.pcb.scoutTarget = null;
+        info.pcb.unexplored = new LinkedList<Region>(game.getAllRegions());
+        info.pcb.expansionUnexplored = new LinkedList<Region>(game.getAllRegions());
 
 
         MapRegions = game.getAllRegions();
@@ -181,6 +191,8 @@ public class emperorZerg extends DefaultBWListener {
         enemy.army = new LinkedList<Unit>();
         enemy.armyTypes = new LinkedList<UnitType>();
         enemy.basePos = new LinkedList<Position>();
+        enemy.startBase = null;
+        enemy.destroyedBase = false;
         enemy.strength = 0;
         //newScoutPath();
 
@@ -325,8 +337,24 @@ public class emperorZerg extends DefaultBWListener {
         game.drawTextScreen(10, 200,"Behavior: " + info.pcb.playstyle);
 
 
+        game.drawCircleMap(self.getStartLocation().toPosition(), 500, Color.Yellow);
+
         if(info.pcb.scout != null) {
             game.drawTextMap(info.pcb.scoutRally, "SCOUT RALLY POSITION");
+            game.drawCircleMap(info.pcb.scout.getPosition(), 400, Color.Red);
+            game.drawCircleMap(info.pcb.scout.getPosition(), 150, Color.Purple);
+            game.drawCircleMap(info.pcb.scoutRally, 250, Color.Red);
+        }
+        if(info.pcb.expansionSecured){
+            game.drawTextMap(info.pcb.expansion, "Expansion center here");
+            game.drawCircleMap(info.pcb.expansion, 500, Color.Yellow);
+        }
+        if(info.pcb.battleField != null){
+            game.drawTextMap(info.pcb.battleField, "Battlefield center");
+            game.drawCircleMap(info.pcb.battleField, 600, Color.White);
+        }
+        if(info.pcb.scoutDest != null){
+            game.drawTextMap(info.pcb.scoutDest.getCenter(), "Scout's destination");
         }
 
         //game.drawTextScreen(10, 60,"Enemy units: " + enemy.buildings);
@@ -348,9 +376,11 @@ public class emperorZerg extends DefaultBWListener {
         }
 
         // Draw an X on the center of each region
-        for(int i = 0; i < MapRegions.size(); i++){
-            Position center = MapRegions.get(i).getCenter();
-            game.drawTextMap(center, "x");
+        if(info.pcb.unexplored.size() > 0) {
+            for (Region region : info.pcb.unexplored) {
+                Position center = region.getCenter();
+                game.drawTextMap(center, "x");
+            }
         }
 
         /****************************SCOUT BEHAVIOR***************************************/
@@ -452,14 +482,20 @@ public class emperorZerg extends DefaultBWListener {
         UnitClass uClass = identifyUnit(unit);
         //if(unit.getType().isBuilding() && self.isEnemy(unit.getPlayer()) && !enemy.buildings.contains(unit)) {
         if(uClass == UnitClass.enemyBuilding || uClass == UnitClass.enemyBase){
-            System.out.println("Discovered building of type: " + unit.getType());
-            enemy.buildings.add(unit);
-            enemy.buildTypes.add(unit.getType());
+            if(!enemy.buildings.contains(unit) && uClass == UnitClass.enemyBase){
+                System.out.println("META: Adding enemy base location to list");
+                enemy.basePos.add(unit.getPosition());
+            }
+            if(!enemy.buildings.contains(unit)) {
+                System.out.println("META: Discovered building of type: " + unit.getType());
+                enemy.buildings.add(unit);
+                enemy.buildTypes.add(unit.getType());
+            }
         }
         else if (uClass == UnitClass.enemyCombatant || uClass == UnitClass.enemyCombatBuilding){
         //else if( self.isEnemy(unit.getPlayer()) && !(enemy.army.contains(unit))  && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)) {
             if(!enemy.army.contains(unit)) {
-                System.out.println("Enemy combat discovered: " + unit.getType());
+                System.out.println("META: Enemy combat discovered: " + unit.getType());
                 enemy.army.add(unit);
                 enemy.armyTypes.add(unit.getType());
             }
@@ -471,7 +507,6 @@ public class emperorZerg extends DefaultBWListener {
         AssSimulator simulator = null;
         for(Unit enemy: info.ecb.army){
             if(enemy.isVisible(info.pcb.self)){
-                System.out.println("ARMY: Enemy visible, running combat simulation");
                 simulator = new AssSimulator(info);
                 break;
             }
@@ -507,12 +542,21 @@ public class emperorZerg extends DefaultBWListener {
             //info.pcb.army.add(unit);
             //info.pcb.armyTypes.add(unit.getType());
         }
+
+        /* COMPARING STRENGTH // SIMULATION START */
+        if(identifyUnit(unit) == UnitClass.playerCombatant) {
+            AssSimulator simulator = null;
+            simulator = new AssSimulator(info);
+            if (simulator != null)
+                simulator.act(info);
+        }
+        /* COMPARING STRENGTH // SIMULATION END */
+
     }
 
     public void onUnitDestroy(Unit unit){
         if(unit == info.pcb.scout){
-            info.pcb.scout = null;
-            info.pcb.scoutCD = 35;
+            info.pcb.scoutCD = 40;
         }
         if(info.pcb.army.contains(unit)){
             //info.pcb.army.remove(unit);
@@ -522,15 +566,23 @@ public class emperorZerg extends DefaultBWListener {
             info.ecb.army.remove(unit);
             info.ecb.armyTypes.remove(unit.getType());
         }
-        /* COMPARING STRENGTH // SIMULATION START */
-        AssSimulator simulator = null;
-        for(Unit enemy: info.ecb.army){
-            if(enemy.isVisible(info.pcb.self)){
-                System.out.println("ARMY: Enemy visible, running combat simulation");
-                simulator = new AssSimulator(info);
-                break;
+        else if(info.ecb.buildings.contains(unit)){
+            info.ecb.buildings.remove(unit);
+            info.ecb.buildTypes.remove(unit);
+        }
+        if(identifyUnit(unit) == UnitClass.enemyBase){
+            if(enemy.startBase == unit) {
+                enemy.destroyedBase = true;
+                System.out.println("META: Enemy's start base destroyed");
+            }
+            if(enemy.basePos.contains(unit.getPosition())) {
+                System.out.println("META: Removing enemy base location from list");
+                enemy.basePos.remove(unit.getPosition());
             }
         }
+        /* COMPARING STRENGTH // SIMULATION START */
+        AssSimulator simulator = null;
+        simulator = new AssSimulator(info);
         if(simulator != null)
             simulator.act(info);
         /* COMPARING STRENGTH // SIMULATION END */

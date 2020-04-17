@@ -1,9 +1,7 @@
-import bwapi.Game;
-import bwapi.Position;
-import bwapi.Region;
-import bwapi.Unit;
+import bwapi.*;
 import javafx.geometry.Pos;
 
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Map;
@@ -20,9 +18,11 @@ public class FindExpansionLocation extends Routine {
     }
 
     public void start(){
+        System.out.println("EXPANSION: Looking for a unit to scout");
         for(Unit unit: info.pcb.self.getUnits()){
-            if(unit.getType().isWorker() && (unit.isIdle() || unit.isGatheringMinerals())){
+            if(unit.getType().isWorker() && (unit.isIdle() || unit.isGatheringMinerals()) && !unit.isCarrying() && unit != info.pcb.scout){
                 scout = unit;
+                System.out.println("EXPANSION: Found unit to scout");
                 break;
             }
         }
@@ -44,14 +44,20 @@ public class FindExpansionLocation extends Routine {
         this.needGas = gas;
     }
     public void act(ChalkBoard info) {
+        start();
         if(info.pcb.expansion != null){
+            System.out.println("EXPANSION: Location already found");
             fail();
             return;
         }
-        if(scout == null)
-            start();
+        if(scout == null || !scout.exists()) {
+            System.out.println("EXPANSION: Scout killed or not found, giving up control");
+            fail();
+        }
 
-        if(scout.getDistance(destination.getCenter()) < 50){
+        if(scout.getDistance(destination.getCenter()) < 100){
+            System.out.println("EXPANSION: New region discovered, is this a good expansion?");
+            info.pcb.expansionUnexplored.remove(destination);
             // Is this a good expansion?
             int min = 0;
             int gas = 0;
@@ -84,20 +90,48 @@ public class FindExpansionLocation extends Routine {
                 }
             }
 
-            explored.add(destination);
-            for(Region region: destination.getNeighbors()){
-                if(!explored.contains(region)){
+            System.out.println("EXPANSION: Region not suitable, moving on to next region");
+            Region prev = destination;
+            LinkedList<Region> neighbors = new LinkedList<Region>(destination.getNeighbors());
+            Collections.shuffle(neighbors);
+            for(Region region: neighbors){
+                if(info.pcb.expansionUnexplored.contains(region) && region.isAccessible()){
+                    System.out.println("EXPANSION: Found unexplored region");
                     destination = region;
                     break;
                 }
             }
+
+            if(info.pcb.expansionUnexplored.size() <= 0){
+                System.out.println("EXPANSION: All regions explored, resetting list");
+                info.pcb.expansionUnexplored = new LinkedList<Region>(game.getAllRegions());
+            }
+            if(prev == destination){
+                System.out.println("EXPANSION: No new region found in neighbors list, looking for closes region from unexplored list");
+                Region closest = null;
+                for(Region region: info.pcb.expansionUnexplored){
+                    if(!region.isAccessible())
+                        continue;
+                    game.drawCircleMap(region.getCenter(), 5, Color.Red);
+                    if(closest == null)
+                        closest = region;
+                    else if(scout.getDistance(region.getCenter()) < scout.getDistance(closest.getCenter()))
+                        closest = region;
+                }
+                if(prev == destination){
+                    System.out.println("EXPANSION: For some reason scout cannot find a valid region");
+                }
+                else{
+                    System.out.println("EXPANSION: New region found, not neighbor but should be close");
+                    destination = closest;
+                }
+            }
+
             scout.move(destination.getCenter());
         }
 
-        game.drawTextMap(scout.getPosition(), "scout");
-        game.drawTextMap(destination.getCenter(), "destination");
-        for(Unit unit: game.getMinerals()){
-            game.drawTextMap(unit.getPosition(), "m");
-        }
+        game.drawCircleMap(scout.getPosition(), 10, Color.Black);
+        game.drawTextMap(scout.getPosition(), "scouting for expansion");
+        game.drawTextMap(destination.getCenter(), "expansion destination");
     }
 }

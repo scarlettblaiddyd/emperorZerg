@@ -27,14 +27,53 @@ public class MidgameBuilds extends Routine{
         if(hatches < 2) {
             this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Hatchery, false));
         }
+        else if (hatches < 3 && info.pcb.buildTypes.contains(UnitType.Zerg_Lair)){
+            this.selector.addRoutine(new BuildExpansion(info));
+        }
+
+        if(info.pcb.expansionSecured){
+            int expLarva = 0;
+            int expDrones = 0;
+            int expExt = 0;
+            int expCol = 0;
+            for(Unit unit: info.pcb.self.getUnits()){
+                UnitType type = unit.getType();
+                if(unit.getDistance(info.pcb.expansion) < 500) {
+                    if (type == UnitType.Zerg_Drone) {
+                        expDrones++;
+                    }
+                    else if(type == UnitType.Zerg_Extractor){
+                        expExt++;
+                    }
+                    else if(type == UnitType.Zerg_Creep_Colony || type == UnitType.Zerg_Sunken_Colony || type == UnitType.Zerg_Spore_Colony){
+                        expCol++;
+                    }
+                    else if(type == UnitType.Zerg_Larva)
+                        expLarva++;
+                }
+            }
+            if(expLarva >= 2) {
+                if (expDrones < 6) {
+                    System.out.println("EXPANSION: Not enough drones, morphing more, will not spin until complete");
+                    this.selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Drone, UnitType.Zerg_Larva, 2, true, true));
+                }
+            }
+            if(expExt != 1) {
+                System.out.println("EXPANSION: No extractor, building one, will not spin until complete");
+                this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Extractor, false, true));
+            }
+            if(expCol < 2) {
+                System.out.println("EXPANSION: Not enough colonies, building one, will not spin until complete");
+                this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, false, true));
+            }
+
+        }
 
         if(!info.pcb.buildTypes.contains(UnitType.Zerg_Lair)) {
-            System.out.println("BASE: Morphing a new lair");
             this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Lair, 1));
         }
         else if (!info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)){
-            System.out.println("BASE: Morphing a new hydralist den");
-            this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Hydralisk_Den, true));
+            this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Hydralisk_Den, false));
         }
         else{
             this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost,1));

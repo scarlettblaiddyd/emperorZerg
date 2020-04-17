@@ -10,6 +10,7 @@ public class ManageDrones extends Routine {
     int mineral;
     int gas;
     int extractors;
+    private boolean expansion;
     LinkedList<Unit> extractorList;
 
     public ManageDrones(ChalkBoard info){
@@ -18,6 +19,16 @@ public class ManageDrones extends Routine {
         mineral = 0;
         gas = 0;
         extractorList = new LinkedList<Unit>();
+        this.expansion = false;
+    }
+
+    public ManageDrones(ChalkBoard info, boolean expansion){
+        this.self = info.pcb.self;
+        droneCnt = 0;
+        mineral = 0;
+        gas = 0;
+        extractorList = new LinkedList<Unit>();
+        this.expansion = expansion;
     }
 
     public void reset() {
@@ -26,6 +37,14 @@ public class ManageDrones extends Routine {
 
     public void act(ChalkBoard info) {
         for(Unit unit: self.getUnits()){
+            if(expansion){
+                if(unit.getDistance(info.pcb.expansion) > 500)
+                    continue;
+            }
+            else{
+                if(unit.getDistance(info.pcb.self.getStartLocation().toPosition()) > 500)
+                    continue;
+            }
             if (unit.getType() == UnitType.Zerg_Drone) {
                 droneCnt++;
             }
@@ -48,16 +67,42 @@ public class ManageDrones extends Routine {
         if(gas < extractors * 2){
             for(Unit unit: self.getUnits()){
                 if(unit.getType().isWorker() && !unit.isCarrying() && unit != info.pcb.scout){
+                    if(expansion){
+                        if(unit.getDistance(info.pcb.expansion) > 500)
+                            continue;
+                    }
+                    else{
+                        if(unit.getDistance(info.pcb.self.getStartLocation().toPosition()) > 500)
+                            continue;
+                    }
                     // TODO: Make the worker find the nearest extractor from the list
                     if(unit.isIdle()){
-                        System.out.println("BASE: Sending idle worker to extractor");
-                        unit.gather(extractorList.get(0));
+                        Unit closestGas = null;
+                        int closestDistance = Integer.MAX_VALUE;
+                        for (Unit extractor : extractorList) {
+                            int distance = unit.getDistance(extractor);
+                            if (distance < closestDistance) {
+                                closestGas = extractor;
+                                closestDistance = distance;
+                            }
+                        }
+                        System.out.println("ARMY: Sending idle worker to extractor");
+                        unit.gather(closestGas);
                         succeed();
                         return;
                     }
                     else if(unit.isGatheringMinerals()){
-                        System.out.println("BASE: Sending mineral gatherer to gather gas");
-                        unit.gather(extractorList.get(0));
+                        Unit closestGas = null;
+                        int closestDistance = Integer.MAX_VALUE;
+                        for (Unit extractor : extractorList) {
+                            int distance = unit.getDistance(extractor);
+                            if (distance < closestDistance) {
+                                closestGas = extractor;
+                                closestDistance = distance;
+                            }
+                        }
+                        System.out.println("ARMY: Sending mineral gatherer to gather gas");
+                        unit.gather(closestGas);
                         succeed();
                         return;
                     }

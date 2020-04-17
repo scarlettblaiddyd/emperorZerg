@@ -32,13 +32,13 @@ public class ArmyRepeat extends Routine {
         else {
             selector.addRoutine(new ScoutEnemy(info));
         }
-        selector.addRoutine(new ArmyIdle(5));
         if(info.pcb.playstyle == Playstyle.OFFENSIVE){
             selector.addRoutine(new OffensiveArmy(info));
         }
         else if(info.pcb.playstyle == Playstyle.DEFENSIVE){
             selector.addRoutine(new DefensiveArmy(info));
         }
+        selector.addRoutine(new ArmyIdle(1));
         this.state = RoutineState.Running;
     }
 

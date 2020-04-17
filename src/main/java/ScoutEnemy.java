@@ -1,5 +1,6 @@
 import bwapi.*;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class ScoutEnemy extends Routine {
@@ -9,6 +10,8 @@ public class ScoutEnemy extends Routine {
     private final enemyChalkBoard enemy;
     private LinkedList<TilePosition> startLocations;
     private Position moveTo = null;
+    private LinkedList<Region> explored;
+    private Region destination;
 
     public void reset() {
 
@@ -24,8 +27,10 @@ public class ScoutEnemy extends Routine {
         this.self = info.pcb.self;
         this.enemy = info.ecb;
         this.startLocations = new LinkedList<TilePosition>(game.getStartLocations());
+        this.explored = info.pcb.unexplored;
+        this.destination = info.pcb.scoutDest;
     }
-
+/*
     public ScoutEnemy(Game game, Player self, enemyChalkBoard enemy) {
         super();
         this.game = game;
@@ -33,22 +38,8 @@ public class ScoutEnemy extends Routine {
         this.enemy = enemy;
         this.startLocations = new LinkedList<TilePosition>(game.getStartLocations());
     }
-
+*/
     public void act(ChalkBoard info) {
-        // If we have the enemies base location, patrol it
-        if (enemy.basePos.size() > 0 && info.pcb.scout != null) {
-            scoutBase(info);
-            fail();
-            return;
-        }
-        if (this.startLocations.contains(self.getStartLocation())) {
-            System.out.println("ARMY: Removing our start location from the list of possible locations");
-            if (this.startLocations.remove(self.getStartLocation())) {
-                System.out.println("ARMY: Successfully removed");
-            } else {
-                System.out.println("ARMY: Failed to remove");
-            }
-        }
         // Check to see if scout was killed
         if (info.pcb.scout == null || !info.pcb.scout.exists()) {
             System.out.println("ARMY: Looking for a unit to turn into a scout");
@@ -63,10 +54,36 @@ public class ScoutEnemy extends Routine {
             }
         }
 
+        if(enemy.destroyedBase && info.pcb.scout != null && info.pcb.scout.exists()){
+            scoutMap(info);
+            return;
+        }
+        // If we have the enemies base location, patrol it
+        if (enemy.startBase != null && info.pcb.scout != null) {
+            scoutBase(info);
+            fail();
+            return;
+        }
+        if (this.startLocations.contains(self.getStartLocation())) {
+            System.out.println("ARMY: Removing our start location from the list of possible locations");
+            if (this.startLocations.remove(self.getStartLocation())) {
+                System.out.println("ARMY: Successfully removed");
+            } else {
+                System.out.println("ARMY: Failed to remove");
+            }
+        }
+
+
         if ((enemy.buildTypes.contains(UnitType.Terran_Command_Center) || enemy.buildTypes.contains(UnitType.Protoss_Nexus) || enemy.buildTypes.contains(UnitType.Zerg_Hatchery)) && moveTo != null) {
-            System.out.println("ARMY: Found enemy base at: " + moveTo.toString());
+            System.out.println("ARMY: Found enemy starting base at: " + moveTo.toString());
+            for(Unit building: enemy.buildings){
+                if(identifyUnit(building) == UnitClass.enemyBase){
+                    enemy.startBase = building;
+                }
+            }
             info.pcb.scoutRally = info.pcb.scout.getPosition();
-            enemy.basePos.add(moveTo);
+            //enemy.basePos.add(moveTo);
+            info.pcb.scoutDest = game.getRegionAt(moveTo);
             //scout.move(self.getStartLocation().toPosition());
             //info.pcb.scout = null;
             succeed();
@@ -85,16 +102,17 @@ public class ScoutEnemy extends Routine {
             fail();
             return;
         }
-        for (Unit u : info.ecb.army) {
+        for (Unit u : info.game.getUnitsInRadius(info.pcb.scout.getPosition(), 350)) {
             UnitClass uc = identifyUnit(u);
+            info.game.drawTextMap(u.getPosition(), uc.toString());
             if(uc == UnitClass.enemyCombatant || uc == UnitClass.enemyCombatBuilding) {
-                if(u.getDistance(info.pcb.scout) <= 350) {
-                    if(u.getDistance(info.pcb.scoutRally) < info.pcb.scout.getDistance(info.pcb.scoutRally)){
-                        System.out.println("ARMY: Scout threatened, threat too close to rally point, retreating to base");
+                if(u.getDistance(info.pcb.scout) <= 400) {
+                    if(u.getDistance(info.pcb.scoutRally) < info.pcb.scout.getDistance(info.pcb.scoutRally) || u.getDistance(info.pcb.scoutRally) < 250){
+                        System.out.println("ARMY: Scout threatened by enemy combatant, threat too close to rally point, retreating to base");
                         info.pcb.scout.move(self.getStartLocation().toPosition());
                     }
                     else {
-                        System.out.println("ARMY: Scout threatened, retreating to rally point");
+                        System.out.println("ARMY: Scout threatened by enemy combatant, retreating to rally point");
                         info.pcb.scout.move(info.pcb.scoutRally);
                     }
                     fail();
@@ -102,13 +120,13 @@ public class ScoutEnemy extends Routine {
                 }
             }
             else if (uc == UnitClass.enemyWorker){
-                if(u.getDistance(info.pcb.scout.getPosition()) < 100){
+                if(u.getDistance(info.pcb.scout.getPosition()) < 150){
                     if(u.getDistance(info.pcb.scoutRally) < info.pcb.scout.getDistance(info.pcb.scoutRally)){
-                        System.out.println("ARMY: Scout threatened, threat too close to rally point, retreating to base");
+                        System.out.println("ARMY: Scout threatened by enemy workers, threat too close to rally point, retreating to base");
                         info.pcb.scout.move(self.getStartLocation().toPosition());
                     }
                     else {
-                        System.out.println("ARMY: Scout threatened, retreating to rally point");
+                        System.out.println("ARMY: Scout threatened by enemy workers, retreating to rally point");
                         info.pcb.scout.move(info.pcb.scoutRally);
                     }
                     fail();
@@ -118,7 +136,91 @@ public class ScoutEnemy extends Routine {
         }
         info.pcb.scout.patrol(info.pcb.scoutRally);
         fail();
-        return;
+    }
+
+    public void scoutMap(ChalkBoard info){
+        System.out.println("ARMY: Looking to scout the map");
+        Region prev = info.pcb.scoutDest;
+
+        // Run from danger
+        for (Unit u : info.game.getUnitsInRadius(info.pcb.scout.getPosition(), 350)) {
+            UnitClass uc = identifyUnit(u);
+            info.game.drawTextMap(u.getPosition(), uc.toString());
+            if(uc == UnitClass.enemyCombatant || uc == UnitClass.enemyCombatBuilding) {
+                if(u.getDistance(info.pcb.scout) <= 400) {
+                    if(u.getDistance(info.pcb.scoutRally) < info.pcb.scout.getDistance(info.pcb.scoutRally) || u.getDistance(info.pcb.scoutRally) < 250){
+                        System.out.println("ARMY: Scout threatened by enemy combatant, threat too close to rally point, retreating to base");
+                        info.pcb.scout.move(self.getStartLocation().toPosition());
+                    }
+                    else {
+                        System.out.println("ARMY: Scout threatened by enemy combatant, retreating to rally point");
+                        info.pcb.scout.move(info.pcb.scoutRally);
+                    }
+                    fail();
+                    return;
+                }
+            }
+            else if (uc == UnitClass.enemyWorker){
+                if(u.getDistance(info.pcb.scout.getPosition()) < 150){
+                    if(u.getDistance(info.pcb.scoutRally) < info.pcb.scout.getDistance(info.pcb.scoutRally)){
+                        System.out.println("ARMY: Scout threatened by enemy workers, threat too close to rally point, retreating to base");
+                        info.pcb.scout.move(self.getStartLocation().toPosition());
+                    }
+                    else {
+                        System.out.println("ARMY: Scout threatened by enemy workers, retreating to rally point");
+                        info.pcb.scout.move(info.pcb.scoutRally);
+                    }
+                    fail();
+                    return;
+                }
+            }
+        }
+
+
+        if(info.pcb.scout.getDistance(info.pcb.scoutDest.getCenter()) < 150){
+            System.out.println("SCOUT: Reached region");
+            info.pcb.unexplored.remove(info.pcb.scoutDest);
+            LinkedList<Region> neighbors = new LinkedList<Region>(info.pcb.scoutDest.getNeighbors());
+            Collections.shuffle(neighbors);
+            for(Region region: neighbors){
+                if(info.pcb.unexplored.contains(region) && region.isAccessible()){
+                    System.out.println("SCOUT: Found unexplored region");
+                    info.pcb.scoutDest = region;
+                    break;
+                }
+            }
+            // No new region found?
+            // If the unexplored list is empty, make a new one
+            if(info.pcb.unexplored.size() <= 0){
+                System.out.println("SCOUT: All regions explored, resetting list");
+                info.pcb.unexplored = new LinkedList<Region>(game.getAllRegions());
+            }
+            if(prev == info.pcb.scoutDest){
+                System.out.println("SCOUT: No new region found, looking for closest region from unexplored list");
+                Region closest = null;
+                for(Region region: info.pcb.unexplored){
+                    if(!region.isAccessible())
+                        continue;
+                    game.drawCircleMap(region.getCenter(), 5, Color.Blue);
+                    if(closest == null)
+                        closest = region;
+                    else if(info.pcb.scout.getDistance(region.getCenter()) < info.pcb.scout.getDistance(closest.getCenter()))
+                        closest = region;
+                }
+                if(prev == closest){
+                    System.out.println("SCOUT: For some reason, scout cannot find a valid region");
+                }
+                else {
+                    System.out.println("SCOUT: New region found, not neighbor but should be close");
+                    info.pcb.scoutDest = closest;
+                }
+            }
+
+        }
+
+        info.pcb.scout.move(info.pcb.scoutDest.getCenter());
+
+        fail();
     }
 
     public UnitClass identifyUnit(Unit unit){

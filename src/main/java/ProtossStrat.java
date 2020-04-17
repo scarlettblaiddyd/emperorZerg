@@ -21,7 +21,7 @@ public class ProtossStrat extends Routine {
         }
 
 
-        if(info.pcb.larva >= 2) {
+        if(info.pcb.larva >= 1) {
             // What unit to build?
             int zerglings = 0;
             int hydralisks = 0;
@@ -70,13 +70,13 @@ public class ProtossStrat extends Routine {
                     creeps++;
                 }
             }
-            if(creeps + sunken + spores < 4){
-                System.out.println("BASE: On the defensive, constructing creep colony");
-                this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true));
-            }
-            if(sunken < 4) {
+            if(creeps > sunken){
                 System.out.println("BASE: Turning creep colony into Sunken Colony");
                 this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1));
+            }
+            else if(creeps + sunken + spores < 4){
+                System.out.println("BASE: On the defensive, constructing creep colony");
+                this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, false));
             }
         }
         else if (info.pcb.playstyle == Playstyle.OFFENSIVE) {
@@ -122,7 +122,7 @@ public class ProtossStrat extends Routine {
 
 
     public void act(ChalkBoard info) {
-        if (enemy.race != Race.Zerg) {
+        if (enemy.race != Race.Protoss) {
             System.out.println("BASE: Not facing protoss");
             fail();
             return;

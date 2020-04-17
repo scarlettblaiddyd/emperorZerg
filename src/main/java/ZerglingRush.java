@@ -6,7 +6,7 @@ public class ZerglingRush extends Routine {
     private final Game game;
     private final Player self;
     private final enemyChalkBoard enemy;
-    private Position target = null;
+    private Position target;
     private final int num;
 
     public void reset() {
@@ -23,6 +23,7 @@ public class ZerglingRush extends Routine {
         this.self = info.pcb.self;
         this.enemy = info.ecb;
         this.num = num;
+        this.target = null;
     }
 
 
@@ -30,6 +31,10 @@ public class ZerglingRush extends Routine {
         if(enemy.basePos.peek() != null && target == null){
             System.out.println("ARMY: Enemy base located, trying to prep Zergling Rush");
             target = enemy.basePos.getFirst();
+        }
+        else{
+            fail();
+            return;
         }
         int zerglings = 0;
         for(Unit unit: info.pcb.army){
