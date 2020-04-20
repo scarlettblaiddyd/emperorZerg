@@ -57,8 +57,10 @@ public class OffensiveArmy extends Routine {
             }
         }
         if(idleZerglings >= 6) {
-            selector.addRoutine(new ZerglingRush(info, idleZerglings));
-            System.out.println("ARMY: Enough idle zerglings to justify a rush");
+            if(!info.pcb.goLate) {
+                selector.addRoutine(new ZerglingRush(info, idleZerglings));
+                System.out.println("ARMY: Enough idle zerglings to justify a rush");
+            }
         }
         else if(idleZerglings + retreatingZerglings > 0) {
             System.out.println("ARMY: Idle/retreating zerglings in army");

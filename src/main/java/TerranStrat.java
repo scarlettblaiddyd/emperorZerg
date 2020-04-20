@@ -26,6 +26,7 @@ public class TerranStrat extends Routine {
             int zerglings = 0;
             int hydralisks = 0;
             int lurkers = 0;
+            int mutalisks = 0;
             for (UnitType unit : info.pcb.armyTypes) {
                 if (unit == UnitType.Zerg_Zergling)
                     zerglings++;
@@ -33,6 +34,8 @@ public class TerranStrat extends Routine {
                     hydralisks++;
                 else if (unit == UnitType.Zerg_Lurker)
                     lurkers++;
+                else if (unit == UnitType.Zerg_Mutalisk)
+                    mutalisks++;
             }
 
             if(self.supplyTotal() - self.supplyUsed() < 2){
@@ -47,7 +50,10 @@ public class TerranStrat extends Routine {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
             } else if (zerglings > hydralisks && info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)) {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Hydralisk, 1, false));
-            } else if (hydralisks > lurkers * 2 && info.pcb.tech.contains(TechType.Lurker_Aspect)) {
+            }
+            else if(mutalisks*2 < zerglings && info.pcb.buildTypes.contains(UnitType.Zerg_Spire))
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Mutalisk, 1, false));
+            else if (hydralisks > lurkers * 2 && info.pcb.tech.contains(TechType.Lurker_Aspect)) {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Lurker, UnitType.Zerg_Hydralisk, 1, false));
             }
             else if(zerglings * 3 < hydralisks)
@@ -71,13 +77,13 @@ public class TerranStrat extends Routine {
                     creeps++;
                 }
             }
-            if(creeps + sunken + spores < 4){
+            if(sunken < 4 && creeps > 0) {
+                System.out.println("BASE: Turning creep colony into Sunken Colony");
+                this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1, true));
+            }
+            if(creeps + sunken + spores < 4) {
                 System.out.println("BASE: On the defensive, constructing creep colony");
                 this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true));
-            }
-            if(sunken < 4) {
-                System.out.println("BASE: Turning creep colony into Sunken Colony");
-                this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1));
             }
         }
         else if (info.pcb.playstyle == Playstyle.OFFENSIVE) {
@@ -99,7 +105,7 @@ public class TerranStrat extends Routine {
             if(creeps + sunken + spores < 2){
                 this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, false));
             }
-            if(sunken < 2) {
+            if(sunken < 2 && creeps > 0 ) {
                 this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1));
             }
         }

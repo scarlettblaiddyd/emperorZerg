@@ -55,7 +55,7 @@ public class MorphStructure extends Routine {
         for (Unit building : info.pcb.self.getUnits()) {
             UnitType unitType = building.getType();
             if (unitType.isBuilding() && !unitType.buildsWhat().isEmpty() && !building.isMorphing() && !building.canCancelMorph()) {
-                if (building.canMorph()) {
+                if (building.canMorph(type)) {
                     System.out.println("BASE: Found a unit to morph into " + type + ", " + building.getType());
                     if(!building.morph(type)){
                         continue;
@@ -70,6 +70,6 @@ public class MorphStructure extends Routine {
                 }
             }
         }
-        //fail();
+        fail();
     }
 }

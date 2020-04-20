@@ -97,6 +97,8 @@ public class MidgameBuilds extends Routine{
             this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Queens_Nest, false));
         }
 
+
+
         if(info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)){
             this.selector.addRoutine(new ResearchTech(info, TechType.Lurker_Aspect, false));
             this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Grooved_Spines, 1));
@@ -115,7 +117,7 @@ public class MidgameBuilds extends Routine{
         }
 
         this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Metabolic_Boost,1));
-
+        this.selector.addRoutine(new ResearchUpgrade(info, UpgradeType.Adrenal_Glands, 1));
 
 
         this.state = RoutineState.Running;

@@ -26,6 +26,7 @@ public class ZergStrat extends Routine {
             int zerglings = 0;
             int hydralisks = 0;
             int lurkers = 0;
+            int mutalisks = 0;
             for (UnitType unit : info.pcb.armyTypes) {
                 if (unit == UnitType.Zerg_Zergling)
                     zerglings++;
@@ -33,6 +34,8 @@ public class ZergStrat extends Routine {
                     hydralisks++;
                 else if (unit == UnitType.Zerg_Lurker)
                     lurkers++;
+                else if(unit == UnitType.Zerg_Mutalisk)
+                    mutalisks++;
             }
 
             if(self.supplyTotal() - self.supplyUsed() < 2){
@@ -47,7 +50,10 @@ public class ZergStrat extends Routine {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
             } else if (zerglings > hydralisks * 2 && info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)) {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Hydralisk, 1, false));
-            } else if (hydralisks > lurkers * 2 && info.pcb.tech.contains(TechType.Lurker_Aspect)) {
+            }
+            else if(mutalisks*2 < zerglings && info.pcb.buildTypes.contains(UnitType.Zerg_Spire))
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Mutalisk, 1, false));
+            else if (hydralisks > lurkers * 2 && info.pcb.tech.contains(TechType.Lurker_Aspect)) {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Lurker, UnitType.Zerg_Hydralisk, 1, false));
             }
             else if(zerglings * 2 < hydralisks)

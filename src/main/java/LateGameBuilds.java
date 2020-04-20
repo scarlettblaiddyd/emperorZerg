@@ -42,7 +42,7 @@ public class LateGameBuilds extends Routine {
             this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Spore_Colony, 1, true));
         }
         else if(creeps + spores + sunken < 7) {
-            this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true));
+            this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true, false));
         }
 
         int ults = 0;
