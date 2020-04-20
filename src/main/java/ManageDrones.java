@@ -66,7 +66,7 @@ public class ManageDrones extends Routine {
         if(gas + mineral == droneCnt){ fail(); }
         if(gas < extractors * 2){
             for(Unit unit: self.getUnits()){
-                if(unit.getType().isWorker() && !unit.isCarrying() && unit != info.pcb.scout){
+                if(unit.getType().isWorker() && !unit.isCarrying() && unit != info.pcb.scout && unit != info.pcb.expScout){
                     if(expansion){
                         if(unit.getDistance(info.pcb.expansion) > 500)
                             continue;
@@ -112,7 +112,7 @@ public class ManageDrones extends Routine {
         }// If we don't need to be gathering more gas, just gather minerals
         else{
             for(Unit unit: self.getUnits()) {
-                if (unit.getType().isWorker() && unit.isIdle() && !unit.isCarrying() && unit != info.pcb.scout) {
+                if (unit.getType().isWorker() && unit.isIdle() && !unit.isCarrying() && unit != info.pcb.scout && unit != info.pcb.expScout) {
                     // Find the closest mineral to it
                     Unit closestMineral = null;
                     int closestDistance = Integer.MAX_VALUE;

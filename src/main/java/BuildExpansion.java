@@ -16,7 +16,10 @@ public class BuildExpansion extends Routine {
         super.start();
     }
 
-    public void reset() { }
+    public void reset() {
+        sequencer = new Sequencer();
+        start();
+    }
 
     public BuildExpansion(ChalkBoard info){
         super();
@@ -41,6 +44,7 @@ public class BuildExpansion extends Routine {
         if(sequencer.state == RoutineState.Success){
             succeed();
             info.pcb.expansionSecured = true;
+            info.pcb.saveForExpansion = false;
             System.out.println("BASE: Expansion secured");
             return;
         }

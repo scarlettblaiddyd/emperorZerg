@@ -20,14 +20,21 @@ public class UnitDefendBase extends Routine {
 
     public void start(ChalkBoard info){
         if(target == null) {
-            for (Unit enemy : info.ecb.army) {
-                if (enemy.isVisible(self)) {
-                    for (Unit building : info.pcb.buildings) {
-                        if (enemy.getDistance(building) < 1000) {
-                            target = enemy;
-                        }
-                    }
+            for(Unit building: info.pcb.buildings){
+                if(building.getType() == UnitType.Zerg_Sunken_Colony){
+                    System.out.println("ARMY: Found sunken colony to defend");
+                    target = building;
+                    break;
                 }
+            }
+            if(target == null)
+            {
+                System.out.println("ARMY: No sunken colony found, defending random building");
+                target = info.pcb.buildings.getFirst();
+            }
+            for(Unit unit: info.pcb.army){
+                if(unit.getType() == type)
+                    unit.move(target.getPosition());
             }
         }
     }
@@ -37,9 +44,16 @@ public class UnitDefendBase extends Routine {
             start(info);
         boolean sent = false;
         for(Unit unit: info.pcb.army) {
-            if(!unit.isAttacking() && unit.getType() == type && unit.isIdle()){
-                unit.attack(target);
-                sent = true;
+            if(unit.getDistance(target) > 200){
+                unit.move(target.getPosition());
+            }
+            else{
+                for(Unit enemy : game.getUnitsInRadius(target.getPosition(), 200)){
+                    if(enemy.getPlayer() != self) {
+                        unit.attack(enemy.getPosition());
+                        sent = true;
+                    }
+                }
             }
         }
         if(sent) {

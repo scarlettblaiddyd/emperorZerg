@@ -19,7 +19,7 @@ public class DefensiveArmy extends Routine {
         super.start();
         this.selector = new Selector();
 
-        selector.addRoutine(new ArmyRetreat(info));
+        //selector.addRoutine(new ArmyRetreat(info));
 
         /*
         boolean idle = false;
@@ -37,6 +37,8 @@ public class DefensiveArmy extends Routine {
         }
         selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Zergling));
         selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Hydralisk));
+        selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Ultralisk));
+        selector.addRoutine(new UnitDefendBase(info, UnitType.Zerg_Mutalisk));
         //selector.addRoutine(new GatherArmy(info));
 
         this.state = RoutineState.Running;

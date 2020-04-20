@@ -49,10 +49,15 @@ class playerChalkBoard{
     LinkedList<Unit> buildings;
     LinkedList<UnitType> buildTypes;
     LinkedList<UnitType> morphingUnits;
+    Boolean startExp;
     Boolean buildOrderComplete;
+    Boolean saveForExpansion;
     Boolean expansionSecured;
+    Boolean goLate;
     Position expansion;
     Unit scout;
+    Unit expScout;
+    Unit armyLead;
     Position scoutRally;
     Region scoutDest;
     Position scoutTarget;
@@ -62,6 +67,7 @@ class playerChalkBoard{
     Hashtable<UpgradeType, Integer> upgrades;
     LinkedList<TechType> tech;
     Playstyle playstyle;
+    int stratSwitch;
     int strength;
     int larva;
     int scoutCD;
@@ -93,6 +99,7 @@ public class emperorZerg extends DefaultBWListener {
     LinkedList<UnitType> morphingUnits = new LinkedList<UnitType>();
     Routine buildRepeater;
     Routine armyRepeater;
+    Routine expansionRepeater;
     boolean skipFrame = false;
     //LinkedList<UnitType> enemyBuildings     = new LinkedList<UnitType>();
 
@@ -155,9 +162,12 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb = player;
         info.pcb.morphingUnits = morphingUnits;
         info.pcb.buildOrderComplete = false;
+        info.pcb.startExp = false;
+        info.pcb.saveForExpansion = false;
         info.pcb.expansionSecured = false;
         info.pcb.expansion = null;
         info.pcb.scout = null;
+        info.pcb.expScout = null;
         info.pcb.scoutRally = null;
         info.pcb.army = new LinkedList<Unit>();
         info.pcb.armyTypes = new LinkedList<UnitType>();
@@ -168,6 +178,7 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb.buildTypes = new LinkedList<UnitType>();
         info.pcb.tech = new LinkedList<TechType>();
         info.pcb.playstyle = Playstyle.OFFENSIVE;
+        info.pcb.stratSwitch = 0;
         info.pcb.strength = 0;
         info.pcb.larva = 0;
         info.pcb.scoutCD = 0;
@@ -176,6 +187,8 @@ public class emperorZerg extends DefaultBWListener {
         info.pcb.scoutTarget = null;
         info.pcb.unexplored = new LinkedList<Region>(game.getAllRegions());
         info.pcb.expansionUnexplored = new LinkedList<Region>(game.getAllRegions());
+        info.pcb.armyLead = null;
+        info.pcb.goLate = false;
 
 
         MapRegions = game.getAllRegions();
@@ -198,6 +211,7 @@ public class emperorZerg extends DefaultBWListener {
 
         buildRepeater = new Repeat(new BaseRepeat(info));
         armyRepeater = new Repeat(new ArmyRepeat(info));
+        expansionRepeater = new Repeat(new BuildExpansion(info));
 
         // TESTING STUFF
         testRepeater = new Repeat(new TestRepeat(info));
@@ -236,7 +250,7 @@ public class emperorZerg extends DefaultBWListener {
                 type == UnitType.Zerg_Hatchery ||
                 type == UnitType.Protoss_Nexus)
                     return UnitClass.enemyBase;
-                if(type == UnitType.Protoss_Photon_Cannon)
+                if(type == UnitType.Protoss_Photon_Cannon || type == UnitType.Zerg_Sunken_Colony || type == UnitType.Terran_Bunker || type == UnitType.Zerg_Spore_Colony)
                     return UnitClass.enemyCombatBuilding;
                 return UnitClass.enemyBuilding;
             }
@@ -247,7 +261,7 @@ public class emperorZerg extends DefaultBWListener {
             if(unit.getPlayer() == self) {
                 if(type.isWorker())
                     return UnitClass.playerWorker;
-                else if(type == UnitType.Zerg_Zergling || type == UnitType.Zerg_Hydralisk || type == UnitType.Zerg_Lurker)
+                else if(type == UnitType.Zerg_Zergling || type == UnitType.Zerg_Hydralisk || type == UnitType.Zerg_Lurker || type == UnitType.Zerg_Ultralisk || type == UnitType.Zerg_Mutalisk)
                     return UnitClass.playerCombatant;
                 else
                     return UnitClass.unimportant;
@@ -255,6 +269,8 @@ public class emperorZerg extends DefaultBWListener {
             if(self.isEnemy(unit.getPlayer()) && (unit.getPlayer().getType() == PlayerType.Player) || (unit.getPlayer().getType() == PlayerType.Computer)){
                 if(type.isWorker())
                     return UnitClass.enemyWorker;
+                else if (type == UnitType.Zerg_Larva || type == UnitType.Zerg_Overlord || type == UnitType.Zerg_Egg)
+                    return UnitClass.unimportant;
                 else
                     return UnitClass.enemyCombatant;
             }
@@ -274,6 +290,8 @@ public class emperorZerg extends DefaultBWListener {
         int zerglings = 0;
         int hydralisks = 0;
         int lurkers = 0;
+        int ultralisks = 0;
+        int mutalisks = 0;
         for(Unit unit: self.getUnits()){
             if(unit.getType().isBuilding() && unit.getType() != UnitType.Zerg_Larva){
                 info.pcb.buildings.add(unit);
@@ -289,6 +307,10 @@ public class emperorZerg extends DefaultBWListener {
                     hydralisks++;
                 else if(unit.getType() == UnitType.Zerg_Lurker)
                     lurkers++;
+                else if(unit.getType() == UnitType.Zerg_Ultralisk)
+                    ultralisks++;
+                else if(unit.getType() == UnitType.Zerg_Mutalisk)
+                    mutalisks++;
                 info.pcb.army.add(unit);
                 info.pcb.armyTypes.add(unit.getType());
             }
@@ -301,12 +323,23 @@ public class emperorZerg extends DefaultBWListener {
         if(armyRepeater.getState() == null){
             armyRepeater.start();
         }
+        if(info.pcb.startExp && expansionRepeater.getState() == null){
+            expansionRepeater.start();
+        }
         if(skipFrame) {
             armyRepeater.act(info);
             skipFrame = false;
         }
         else{
-            buildRepeater.act(info);
+            // Don't build stuff in base while trying to save up minerals for an expansion
+            if(!info.pcb.saveForExpansion) {
+                buildRepeater.act(info);
+            }
+            else
+                System.out.println("BASE: SAVING UP FOR EXPANSION, NOT ACTING");
+            if(info.pcb.startExp && expansionRepeater.getState() != null) {
+                expansionRepeater.act(info);
+            }
             skipFrame = true;
         }
 
@@ -328,7 +361,7 @@ public class emperorZerg extends DefaultBWListener {
         // General info for keeping track of AI behavior
         game.drawTextScreen(10, 10, "Playing as " + self.getName() + "-" + self.getRace());
         game.drawTextScreen(10, 30, "Morphing units:" + morphingUnits);
-        game.drawTextScreen(10 , 40, "Zerglings: " + zerglings +", Hydralisks: " + hydralisks + ", Lurkers: " + lurkers);
+        game.drawTextScreen(10 , 40, "Zerglings: " + zerglings +", Hydralisks: " + hydralisks + ", Lurkers: " + lurkers + ", Ultralisks: " + ultralisks + ", Mutalisks: " + mutalisks);
         //game.drawTextScreen(10, 40, "Army: " + info.pcb.armyTypes);
         game.drawTextScreen(10, 50, "Building types: " + info.pcb.buildTypes);
         game.drawTextScreen(10, 60, "Enemy army: " + info.ecb.armyTypes);
@@ -345,16 +378,24 @@ public class emperorZerg extends DefaultBWListener {
             game.drawCircleMap(info.pcb.scout.getPosition(), 150, Color.Purple);
             game.drawCircleMap(info.pcb.scoutRally, 250, Color.Red);
         }
-        if(info.pcb.expansionSecured){
-            game.drawTextMap(info.pcb.expansion, "Expansion center here");
-            game.drawCircleMap(info.pcb.expansion, 500, Color.Yellow);
-        }
         if(info.pcb.battleField != null){
             game.drawTextMap(info.pcb.battleField, "Battlefield center");
             game.drawCircleMap(info.pcb.battleField, 600, Color.White);
         }
         if(info.pcb.scoutDest != null){
             game.drawTextMap(info.pcb.scoutDest.getCenter(), "Scout's destination");
+        }
+        if(info.pcb.armyLead != null){
+            game.drawCircleMap(info.pcb.armyLead.getPosition(), 600, Color.Orange);
+            game.drawTextMap(info.pcb.armyLead.getPosition(), "Army lead");
+        }
+        if(info.pcb.expScout != null){
+            game.drawTextMap(info.pcb.expScout.getPosition(), "Scouting for expansion");
+            game.drawCircleMap(info.pcb.expScout.getPosition(), 500, Color.Teal);
+        }
+        if(info.pcb.expansion != null){
+            game.drawTextMap(info.pcb.expansion, "Expansion center here");
+            game.drawCircleMap(info.pcb.expansion, 500, Color.Yellow);
         }
 
         //game.drawTextScreen(10, 60,"Enemy units: " + enemy.buildings);
@@ -381,6 +422,18 @@ public class emperorZerg extends DefaultBWListener {
                 Position center = region.getCenter();
                 game.drawTextMap(center, "x");
             }
+        }
+
+        info.pcb.stratSwitch--;
+        if(info.pcb.stratSwitch > 0){
+            System.out.println("META: Behavior strategy cooldown: " + info.pcb.stratSwitch);
+        }
+        else if (info.pcb.stratSwitch < -500){
+            if(info.pcb.playstyle == Playstyle.DEFENSIVE) {
+                System.out.println("META: Been on the defensive for too long, forcing switch to offensive");
+                info.pcb.playstyle = Playstyle.OFFENSIVE;
+            }
+            info.pcb.stratSwitch = 0;
         }
 
         /****************************SCOUT BEHAVIOR***************************************/
@@ -503,18 +556,19 @@ public class emperorZerg extends DefaultBWListener {
         else if (uClass == UnitClass.enemyWorker){
             // Do nothing?
         }
-        /* COMPARING STRENGTH // SIMULATION START */
-        AssSimulator simulator = null;
-        for(Unit enemy: info.ecb.army){
-            if(enemy.isVisible(info.pcb.self)){
-                simulator = new AssSimulator(info);
-                break;
+        if(info.pcb.stratSwitch <= 0) {
+            /* COMPARING STRENGTH // SIMULATION START */
+            AssSimulator simulator = null;
+            for (Unit enemy : info.ecb.army) {
+                if (enemy.isVisible(info.pcb.self)) {
+                    simulator = new AssSimulator(info);
+                    break;
+                }
             }
+            if (simulator != null)
+                simulator.act(info);
+            /* COMPARING STRENGTH // SIMULATION END */
         }
-        if(simulator != null)
-            simulator.act(info);
-        /* COMPARING STRENGTH // SIMULATION END */
-
     }
 
     public void onUnitComplete(Unit unit) {
@@ -543,21 +597,24 @@ public class emperorZerg extends DefaultBWListener {
             //info.pcb.armyTypes.add(unit.getType());
         }
 
-        /* COMPARING STRENGTH // SIMULATION START */
-        if(identifyUnit(unit) == UnitClass.playerCombatant) {
-            AssSimulator simulator = null;
-            simulator = new AssSimulator(info);
-            if (simulator != null)
-                simulator.act(info);
+        if(info.pcb.stratSwitch <= 0) {
+            /* COMPARING STRENGTH // SIMULATION START */
+            if (identifyUnit(unit) == UnitClass.playerCombatant) {
+                AssSimulator simulator = null;
+                simulator = new AssSimulator(info);
+                if (simulator != null)
+                    simulator.act(info);
+            }
+            /* COMPARING STRENGTH // SIMULATION END */
         }
-        /* COMPARING STRENGTH // SIMULATION END */
-
     }
 
     public void onUnitDestroy(Unit unit){
         if(unit == info.pcb.scout){
             info.pcb.scoutCD = 40;
         }
+        if(unit == info.pcb.armyLead)
+            info.pcb.armyLead = null;
         if(info.pcb.army.contains(unit)){
             //info.pcb.army.remove(unit);
             //info.pcb.armyTypes.remove(unit.getType());
@@ -580,13 +637,15 @@ public class emperorZerg extends DefaultBWListener {
                 enemy.basePos.remove(unit.getPosition());
             }
         }
-        /* COMPARING STRENGTH // SIMULATION START */
-        AssSimulator simulator = null;
-        simulator = new AssSimulator(info);
-        if(simulator != null)
-            simulator.act(info);
-        /* COMPARING STRENGTH // SIMULATION END */
 
+        if(info.pcb.stratSwitch <= 0) {
+            /* COMPARING STRENGTH // SIMULATION START */
+            AssSimulator simulator = null;
+            simulator = new AssSimulator(info);
+            if (simulator != null)
+                simulator.act(info);
+            /* COMPARING STRENGTH // SIMULATION END */
+        }
     }
 
     public int minDistance(int dist[], boolean visited[]){

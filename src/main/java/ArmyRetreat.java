@@ -20,7 +20,7 @@ public class ArmyRetreat extends Routine {
     public void act(ChalkBoard info) {
         boolean retreated = false;
         for(Unit unit: info.pcb.army){
-            if(unit.getDistance(self.getStartLocation().toPosition())  > 500){
+            if(unit.getDistance(self.getStartLocation().toPosition())  > 1000){
                 unit.move(self.getStartLocation().toPosition());
                 retreated = true;
             }

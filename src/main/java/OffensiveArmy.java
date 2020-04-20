@@ -23,26 +23,58 @@ public class OffensiveArmy extends Routine {
         }
         // Check if we have idle units?
         int idleZerglings = 0;
+        int retreatingZerglings = 0;
         int idleHydralisks = 0;
+        int retreatingHydralisks = 0;
+        int idleUltralisks = 0;
+        int retreatingUltralisks = 0;
+        int idleMutalisks = 0;
+        int retreatingMutalisks = 0;
         for(Unit unit: info.pcb.army){
-            if(unit.getType() == UnitType.Zerg_Zergling && unit.isIdle()){
-                idleZerglings += 1;
+            if(unit.getType() == UnitType.Zerg_Zergling){
+                if(unit.isIdle())
+                    idleZerglings += 1;
+                if(unit.getTargetPosition().getDistance(info.pcb.self.getStartLocation().toPosition()) < 500)
+                    retreatingZerglings++;
             }
-            else if(unit.getType() == UnitType.Zerg_Hydralisk && unit.isIdle()){
-                idleHydralisks++;
+            else if(unit.getType() == UnitType.Zerg_Hydralisk){
+                if(unit.isIdle())
+                    idleHydralisks++;
+                if(unit.getTargetPosition().getDistance(info.pcb.self.getStartLocation().toPosition()) < 500)
+                    retreatingHydralisks++;
+            }
+            else if(unit.getType() == UnitType.Zerg_Ultralisk){
+                if(unit.isIdle())
+                    idleUltralisks++;
+                if(unit.getTargetPosition().getDistance(info.pcb.self.getStartLocation().toPosition()) < 500)
+                    retreatingUltralisks++;
+            }
+            else if(unit.getType() == UnitType.Zerg_Mutalisk){
+                if(unit.isIdle())
+                    idleMutalisks++;
+                if(unit.getTargetPosition().getDistance(info.pcb.self.getStartLocation().toPosition()) < 500)
+                    retreatingMutalisks++;
             }
         }
         if(idleZerglings >= 6) {
             selector.addRoutine(new ZerglingRush(info, idleZerglings));
             System.out.println("ARMY: Enough idle zerglings to justify a rush");
         }
-        else if(idleZerglings > 0) {
-            System.out.println("ARMY: Idle zerglings in army");
+        else if(idleZerglings + retreatingZerglings > 0) {
+            System.out.println("ARMY: Idle/retreating zerglings in army");
             selector.addRoutine(new GenericUnitOffensive(info, UnitType.Zerg_Zergling));
         }
-        if(idleHydralisks > 0) {
-            System.out.println("ARMY: Idle Hydralisks in army");
+        if(idleHydralisks + retreatingHydralisks > 0) {
+            System.out.println("ARMY: Idle/retreating Hydralisks in army");
             selector.addRoutine(new GenericUnitOffensive(info, UnitType.Zerg_Hydralisk));
+        }
+        if(idleUltralisks + retreatingUltralisks > 0){
+            System.out.println("ARMY: Idle/retreating Ultralisks in army");
+            selector.addRoutine(new GenericUnitOffensive(info, UnitType.Zerg_Ultralisk));
+        }
+        if(idleMutalisks + retreatingMutalisks > 0){
+            System.out.println("ARMY: Idle/retreating Mutalisks in army");
+            selector.addRoutine(new GenericUnitOffensive(info, UnitType.Zerg_Mutalisk));
         }
         selector.addRoutine(new LurkerOffensive(info));
         //selector.addRoutine(new AttackVisible(info));

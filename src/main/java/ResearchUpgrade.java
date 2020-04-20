@@ -8,12 +8,22 @@ public class ResearchUpgrade extends Routine {
     Player self;
     UnitType required;
     Integer level;
+    Boolean wait;
 
     public ResearchUpgrade(ChalkBoard info, UpgradeType upgrade, Integer level){
         this.self = info.pcb.self;
         this.upgrade = upgrade;
         this.required = upgrade.whatUpgrades();
         this.level = level;
+        this.wait = false;
+    }
+
+    public ResearchUpgrade(ChalkBoard info, UpgradeType upgrade, Integer level, Boolean wait){
+        this.self = info.pcb.self;
+        this.upgrade = upgrade;
+        this.required = upgrade.whatUpgrades();
+        this.level = level;
+        this.wait = wait;
     }
 
     public void reset() {
@@ -41,6 +51,8 @@ public class ResearchUpgrade extends Routine {
         }
         else{
             if(self.gas() < upgrade.gasPrice() || self.minerals() < upgrade.mineralPrice()){
+                if(wait)
+                    return;
                 fail();
                 //System.out.println("BASE: Not enough gas or minerals. Required gas: " + upgrade.gasPrice() + ", required minerals: " + upgrade.mineralPrice());
             }

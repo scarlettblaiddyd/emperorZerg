@@ -65,6 +65,8 @@ public class BuildStructure extends Routine {
                         if(unit.getDistance(info.pcb.expansion) > 500)
                             continue;
                     }
+                    else if(info.pcb.expScout == unit)
+                        continue;
                     else if(unit.getDistance(self.getStartLocation().toPosition()) > 500)
                         continue;
                     morpher = unit;
@@ -76,7 +78,7 @@ public class BuildStructure extends Routine {
         if (morpher != null) {
             if (structureTile == null) {
                 if(expansion){
-                    structureTile = game.getBuildLocation(structure, morpher.getTilePosition());
+                    structureTile = game.getBuildLocation(structure, info.pcb.expansion.toTilePosition());
                 }
                 else {
                     structureTile = game.getBuildLocation(structure, self.getStartLocation());

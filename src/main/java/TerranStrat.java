@@ -43,16 +43,17 @@ public class TerranStrat extends Routine {
             }
 
 
-            if (zerglings < 8) {
+            if (zerglings < 6) {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
-            } else if (zerglings > hydralisks * 2 && info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)) {
+            } else if (zerglings > hydralisks && info.pcb.buildTypes.contains(UnitType.Zerg_Hydralisk_Den)) {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Hydralisk, 1, false));
             } else if (hydralisks > lurkers * 2 && info.pcb.tech.contains(TechType.Lurker_Aspect)) {
                 selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Lurker, UnitType.Zerg_Hydralisk, 1, false));
             }
+            else if(zerglings * 3 < hydralisks)
+                selector.addRoutine(new MorphUnit(info, UnitType.Zerg_Zergling, 1, false));
         }
 
-        selector.addRoutine(new MidgameBuilds(info));
 
         if(info.pcb.playstyle == Playstyle.DEFENSIVE){
             System.out.println("BASE: Terran Strategy defensive");
@@ -96,11 +97,17 @@ public class TerranStrat extends Routine {
                 }
             }
             if(creeps + sunken + spores < 2){
-                this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, true));
+                this.selector.addRoutine(new BuildStructure(info, UnitType.Zerg_Creep_Colony, false));
             }
             if(sunken < 2) {
                 this.selector.addRoutine(new MorphStructure(info, UnitType.Zerg_Sunken_Colony, 1));
             }
+        }
+
+        selector.addRoutine(new MidgameBuilds(info));
+
+        if(info.pcb.goLate){
+            selector.addRoutine(new LateGameBuilds(info));
         }
 
         this.state = RoutineState.Running;

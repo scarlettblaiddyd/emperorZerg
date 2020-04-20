@@ -21,8 +21,8 @@ public class TestRepeat extends Routine {
         if(selector == null)
             selector = new Selector();
 
-        //selector.addRoutine(new BuildExpansion(info));
         selector.addRoutine(new ScoutEnemy(info));
+        selector.addRoutine(new BuildExpansion(info));
         selector.addRoutine(new ManageDrones(info));
         selector.addRoutine(new ManageDrones(info, true));
         selector.addRoutine(new MidgameBuilds(info));

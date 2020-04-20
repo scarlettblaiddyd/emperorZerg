@@ -45,13 +45,17 @@ public class ScoutEnemy extends Routine {
             System.out.println("ARMY: Looking for a unit to turn into a scout");
             for (Unit unit : self.getUnits()) {
                 UnitType unitType = unit.getType();
-                if (unitType.isWorker() && !unit.isCarryingMinerals() && !unit.isCarryingGas()) {
+                if (unitType.isWorker() && !unit.isCarryingMinerals() && !unit.isCarryingGas() && unit != info.pcb.expScout) {
                     System.out.println("ARMY: Found a unit to turn into scout");
                     info.pcb.scout = unit;
                     info.pcb.scout.stop();
                     break;
                 }
             }
+        }
+        if(info.pcb.scout.getType() != UnitType.Zerg_Drone){
+            System.out.println("ARMY: Scout got messed up, no longer a drone, not using this scout anymore");
+            info.pcb.scout = null;
         }
 
         if(enemy.destroyedBase && info.pcb.scout != null && info.pcb.scout.exists()){

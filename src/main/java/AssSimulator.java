@@ -7,6 +7,7 @@ public class AssSimulator extends Routine {
     private final Game game;
     private final Player self;
     private final enemyChalkBoard enemy;
+    private Position armyLead;
 
     public void reset() { }
 
@@ -20,6 +21,7 @@ public class AssSimulator extends Routine {
     public void act(ChalkBoard info) {
         BWMirrorAgentFactory factory = new BWMirrorAgentFactory(game);
         Simulator simulator = new Simulator.Builder().build();
+        armyLead = null;
 
         // put the armies into the simulator
         // Find the enemy to check distance against
@@ -50,8 +52,14 @@ public class AssSimulator extends Routine {
         // simulation of the fight and we can add EVERY one of our army units.
         boolean armyEngaged = false;
         for (Unit unit : info.pcb.army) {
-            if (unit.getDistance(fightCenter) <= 600)
+            if (unit.getDistance(fightCenter) <= 600) {
+                if(armyLead == null) {
+                    armyLead = unit.getPosition();
+                    info.pcb.armyLead = unit;
+                }
                 armyEngaged = true;
+
+            }
         }
         if(scoutPresent && !armyEngaged)
             System.out.println("ARMY: Scout found enemy, army not present, running simulation with all friendly forces");
@@ -72,7 +80,7 @@ public class AssSimulator extends Routine {
                 simulator.addAgentA(factory.of(unit.getType()));
             }
             else {
-                if (unit.getDistance(fightCenter) <= 600)
+                if (unit.getDistance(armyLead) <= 600)
                     simulator.addAgentA(factory.of(unit.getType()));
             }
         }
@@ -84,12 +92,24 @@ public class AssSimulator extends Routine {
             if(info.pcb.playstyle != Playstyle.DEFENSIVE) {
                 System.out.println("ARMY: Simulation LOSS, going on the defensive");
                 info.pcb.playstyle = Playstyle.DEFENSIVE;
+                info.pcb.stratSwitch = 60;
+                for(Unit unit: info.pcb.army){
+                    if(unit.isMoving()){
+                        unit.stop();
+                    }
+                }
             }
         }
         else {
             if(info.pcb.playstyle != Playstyle.OFFENSIVE) {
                 System.out.println("ARMY: Simulation VICTORY, going on the offensive");
                 info.pcb.playstyle = Playstyle.OFFENSIVE;
+                info.pcb.stratSwitch = 60;
+                for(Unit unit: info.pcb.army){
+                    if(unit.isMoving()){
+                        unit.stop();
+                    }
+                }
             }
         }
         fail();
