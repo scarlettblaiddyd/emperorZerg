@@ -100,3 +100,12 @@ The AssSimulator routine is the only routine that currently is called outside of
 Finally, there are a few "Chalkboard" style classes that emperorZerg uses to share data inside the behavior trees. There is the overall Chalkboard class, which contains an instance of enemyChalkboard and playerChalkboard. enemyChalkboard keeps track of things like the enemies race, their playerID, what buildings or army units they have, and a list of the positions of their bases. playerChalkboard contains information about our own buildings and army units, and contains several flags for important milestones in play, such as completing our basic build order or starting our lategame routines.
 
 If you have any specific questions about anything relating to this bot, please feel free to reach out to me at thomas.eckburg@gmail.com. You can also check out the official SSCAIT Discord Server to chat with other people who write starcraft brood war bots!
+
+
+## Known Bugs
+
+For some reason, if our units exceed our control because a Dark Archon steals an Overlord, the bot will not attempt to morph any more overlords. Cause unknown.
+
+If the expansion scout is killed before turning into a hatchery but after finding a suitable expansion location, the bot will never morph a hatchery at the expansion because there will be no Drones deemed "close enough" to do so. Cause known, need to fiddle with BuildStructure and BuildExpansion to let it grab any drone for use in building the hatchery.
+
+If a building is suddenly unable to be constructed when a buildstructure routine has been called with the "wait" variable set to true (such as being unable to construct an Ultralisk Den because our Hive was destroyed), the bot will sometimes never fail out of that routine. Cause unknown.
